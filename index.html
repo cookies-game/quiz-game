@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Game</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: white;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        .start-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 30px;
+            padding: 13px 40px;
+            background: white;
+            border: 2px solid black;
+            border-radius: 30px;
+            box-shadow: 5px 5px 15px black;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .start-btn:hover {
+            box-shadow: none;
+            transform: translate(-50%, -50%) translateY(-3px);
+        }
+
+        .setting-btn {
+            font-size: 37px;
+            background: white;
+            border: none;
+            position: absolute;
+            top: 32px;
+            left: 32px;
+            transform: translate(-50%, -50%) scale(1);
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .setting-btn:hover {
+            transform: translate(-50%, -50%) scale(1.3);
+        }
+
+        .setting-btn:active {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        #subj-select-screen {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .subj-box {
+            transition: 0.3s;
+            border: 2px solid black;
+            border-radius: 20px;
+            padding: 40px 100px;
+            background: white;
+            box-shadow: 5px 5px 15px black;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .subj-box.pressed {
+            box-shadow: none;
+            transform: translateY(-3px);
+        }
+
+        .description {
+            font-size: 20px;
+        }
+
+        .subjList {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .subj {
+            font-size: 18px;
+            padding: 12px 35px;
+            background: white;
+            border: 1px solid black;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: 0.3s;
+            transform: scale(1);
+        }
+
+        .subj:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgb(45, 45, 45)
+        }
+
+        .subj:active {
+            transform: scale(1);
+            box-shadow: none;
+        }
+
+        .home-btn {
+            font-size: 18px;
+            padding: 10px 15px;
+            width: 160px;
+            background: white;
+            border: 1px solid black;
+            border-radius: 10px;
+            transform: scale(1);
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .home-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgb(45, 45, 45);
+        }
+
+        .home-btn:active {
+            transform: scale(1);
+            box-shadow: none;
+        }
+
+        #quiz-screen {
+            width: 100%;
+            min-height: 100vh;
+
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            gap: 25px;
+
+            padding: 30px;
+        }
+
+        .message {
+            font-size: 35px;
+            font-weight: bold;
+            height: 40px;
+        }
+
+        .message.correct {
+            color: rgb(80, 80, 255);
+            text-shadow: 0 0 4px rgb(80, 80, 255);
+        }
+
+        .message.wrong {
+            color: rgb(255, 60, 60);
+            text-shadow: 0 0 4px rgb(255, 60, 60);
+        }
+
+        .score,
+        .timer {
+            font-size: 24px;
+
+            background: white;
+
+            padding: 12px 25px;
+
+            border-radius: 15px;
+
+            border: 2px solid black;
+
+            box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .question-text {
+            width: 80%;
+            max-width: 900px;
+
+            background: white;
+
+            border: 3px solid black;
+            border-radius: 25px;
+
+            padding: 35px;
+
+            text-align: center;
+
+            font-size: 35px;
+
+            box-shadow: 6px 6px 18px rgba(0, 0, 0, 0.25);
+        }
+
+        .choices {
+            width: 80%;
+            max-width: 900px;
+
+            display: grid;
+
+            grid-template-columns: repeat(2, 1fr);
+
+            gap: 20px;
+        }
+
+        .choice-btn {
+            font-size: 24px;
+
+            padding: 20px;
+
+            background: white;
+
+            border: 2px solid black;
+            border-radius: 20px;
+
+            cursor: pointer;
+
+            transition: 0.3s;
+
+            box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.2);
+
+            transform: scale(1);
+        }
+
+        .choice-btn:hover {
+            transform: scale(1.05);
+
+            box-shadow: 0 10px 18px rgba(0, 0, 0, 0.3);
+        }
+
+        .choice-btn:active {
+            transform: scale(1);
+
+            box-shadow: none;
+        }
+
+        #result-screen {
+            width: 100%;
+            min-height: 100vh;
+
+            align-items: center;
+            justify-content: center;
+        }
+
+        .result-box {
+            background: white;
+
+            border: 3px solid black;
+            border-radius: 30px;
+
+            padding: 50px;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            gap: 30px;
+
+            box-shadow: 6px 6px 18px rgba(0, 0, 0, 0.3);
+        }
+
+        .result {
+            font-size: 42px;
+        }
+
+        .result-text {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .button {
+            display: flex;
+            gap: 15px;
+
+            flex-wrap: wrap;
+
+            justify-content: center;
+        }
+
+        .restart-btn,
+        .restart-btn2,
+        .home-btn2 {
+            font-size: 20px;
+
+            padding: 15px 25px;
+
+            background: white;
+
+            border: 2px solid black;
+            border-radius: 15px;
+
+            cursor: pointer;
+
+            transition: 0.3s;
+
+            box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.2);
+
+            transform: scale(1);
+        }
+
+        .restart-btn:hover,
+        .restart-btn2:hover,
+        .home-btn2:hover {
+            transform: scale(1.05);
+
+            box-shadow: 0 10px 18px rgba(0, 0, 0, 0.25);
+        }
+
+        .restart-btn:active,
+        .restart-btn2:active,
+        .home-btn2:active {
+            transform: scale(1);
+
+            box-shadow: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="home-screen" class="screen active">
+
+        <button class="setting-btn">
+            🛠️
+        </button>
+
+        <button class="start-btn" onclick="app.showScreen('subj-select-screen')">
+            ゲームプレイ
+        </button>
+
+    </div>
+
+    <div id="subj-select-screen" class="screen">
+
+        <div class="subj-box">
+
+            <p class="description">
+                教科を選択してください
+            </p>
+
+            <div class="subjList">
+
+                <button class="subj" data-subj="japanese">
+                    国語
+                </button>
+
+                <button class="subj" data-subj="math">
+                    算数
+                </button>
+
+                <button class="subj" data-subj="science">
+                    理科
+                </button>
+
+                <button class="subj" data-subj="social">
+                    社会
+                </button>
+
+                <button class="subj" data-subj="english">
+                    英語
+                </button>
+
+            </div>
+
+            <button class="home-btn" onclick="app.showScreen('home-screen')">
+                戻る
+            </button>
+
+        </div>
+
+    </div>
+
+    <div id="quiz-screen" class="screen">
+        <p class="message"></p>
+        <p class="score">正解数：0問</p>
+        <p class="timer">30秒</p>
+        <h2 class="question-text"></h2>
+        <div class="choices"></div>
+    </div>
+
+    <div id="result-screen" class="screen">
+
+        <div class="result-box">
+
+            <h2 class="result">
+                最終結果
+            </h2>
+
+            <p class="result-text"></p>
+
+            <div class="button">
+
+                <button class="restart-btn2">
+                    教科を選びなおす
+                </button>
+
+                <button class="restart-btn">
+                    もう一度プレイ
+                </button>
+
+                <button class="home-btn2" onclick="app.showScreen('home-screen')">
+                    戻る
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script type="module">
+
+        const homescreen = document.getElementById("home-screen");
+        const subjscreen = document.getElementById("subj-select-screen");
+        const quizscreen = document.getElementById("quiz-screen");
+        const resultscreen = document.getElementById("result-screen");
+
+        const startbtn = document.querySelector(".start-btn");
+        const homebtn = document.querySelector(".home-btn");
+        const restartbtn = document.querySelector(".restart-btn");
+        const restartbtn2 = document.querySelector(".restart-btn2");
+        const subjbuttons = document.querySelectorAll(".subj");
+        const message = document.querySelector(".message");
+        const scoreText = document.querySelector(".score");
+        const timerText = document.querySelector(".timer");
+        const questiontext = document.querySelector(".question-text");
+        const choices = document.querySelector(".choices");
+        const result = document.querySelector(".result");
+        const resultText = document.querySelector(".result-text");
+
+        const quizData = {
+            japanese: [
+                {
+                    question: "「石の上にも三年」の意味は？",
+                    choices: [
+                        "すぐにあきらめる",
+                        "我慢して続けるといいことがある",
+                        "石を三年間積み上げる",
+                        "早く行動する"
+                    ],
+                    answer: "我慢して続けるといいことがある"
+                },
+                {
+                    question: "「二兎を追う者は一兎をも得ず」の意味は？",
+                    choices: [
+                        "二つのことを同時に頑張る",
+                        "欲張るとどちらもうまくいかない",
+                        "ウサギを二匹捕まえる",
+                        "1つはあきらめないといけない"
+                    ],
+                    answer: "欲張るとどちらもうまくいかない"
+                },
+                {
+                    question: "「急がば回れ」の意味は？",
+                    choices: [
+                        "遠回りは無駄である",
+                        "急いでる時こそ遠回りをした方がいい",
+                        "回ると早く着く",
+                        "急いでるときは走ったほうがいい"
+                    ],
+                    answer: "急いでる時こそ遠回りをした方がいい"
+                },
+                {
+                    question: "七転び八起き",
+                    choices: [
+                        "七回転んだらそこで試合終了",
+                        "七回転んで八回起きればいいことがある",
+                        "何度失敗してもあきらめずに立ち上がる",
+                        "七回転んだら八回起き上がらねばならない"
+                    ],
+                    answer: "何度失敗してもあきらめずに立ち上がる"
+                },
+                {
+                    question: "井の中の蛙大海を知らず",
+                    choices: [
+                        "井戸の中の蛙は泳ぎが得意",
+                        "狭い範囲しか知らない人は広い世界を知らない",
+                        "大海はとても浅い",
+                        "井戸の中にはカエルがいる"
+                    ],
+                    answer: "狭い範囲しか知らない人は広い世界を知らない"
+                },
+                {
+                    question: "雨降って地固まる",
+                    choices: [
+                        "雨が降ると地面が固まる",
+                        "人とトラブルがあった後は仲が深まる",
+                        "悲しいことがあった後は強くなる",
+                        "雨の日は地盤が緩くなる"
+                    ],
+                    answer: "人とトラブルがあった後は仲が深まる"
+                },
+                {
+                    question: "「唯一」の読み方は？",
+                    choices: [
+                        "ゆういつ",
+                        "ゆいつ",
+                        "ゆいいつ",
+                        "ゆういち"
+                    ],
+                    answer: "ゆいいつ"
+                },
+                {
+                    question: "「慎重」の読み方は？",
+                    choices: [
+                        "ちんじゅう",
+                        "しんちゅう",
+                        "しんちょう",
+                        "しんおも"
+                    ],
+                    answer: "しんちょう"
+                },
+                {
+                    question: "「逐一」の読み方は？",
+                    choices: [
+                        "とんいつ",
+                        "とんいち",
+                        "ちくいち",
+                        "ちくいつ"
+                    ],
+                    answer: "ちくいち"
+                },
+                {
+                    question: "「魅力」の読み方は？",
+                    choices: [
+                        "みりょう",
+                        "みりょく",
+                        "みぢから",
+                        "みちから"
+                    ],
+                    answer: "みりょく"
+                },
+                {
+                    question: "「魑魅魍魎」の読み方は？",
+                    choices: [
+                        "りみりょうもう",
+                        "ちりもうみょう",
+                        "ちみもうりょう",
+                        "みみみみ"
+                    ],
+                    answer: "ちみもうりょう"
+                },
+                {
+                    question: "「目から鱗が落ちる」の意味は？",
+                    choices: [
+                        "急に理解する",
+                        "驚いて黙る",
+                        "目から鱗が落ちるように痛い",
+                        "興味がわく"
+                    ],
+                    answer: "急に理解する"
+                },
+                {
+                    question: "「頭が上がらない」の意味は？",
+                    choices: [
+                        "プライドが高い",
+                        "尊敬して逆らえない",
+                        "頭脳がいい",
+                        "病気"
+                    ],
+                    answer: "尊敬して逆らえない"
+                },
+                {
+                    question: "「腕が鳴る」の意味は？",
+                    choices: [
+                        "骨が折れる",
+                        "自信があってやる気が出る",
+                        "楽しみで仕方がない",
+                        "腕時計が鳴る"
+                    ],
+                    answer: "自信があってやる気が出る"
+                },
+                {
+                    question: "「腹に据えかねる」の意味は？",
+                    choices: [
+                        "おなかが尋常じゃなく痛い",
+                        "我慢できないほど腹が立つ",
+                        "いくら食べてもおなかがいっぱいにならない",
+                        "何をしても楽しくない"
+                    ],
+                    answer: "我慢できないほど腹が立つ"
+                },
+                {
+                    question: "「先生が来る」の尊敬語は？",
+                    choices: [
+                        "先生がいらっしゃる",
+                        "先生がいらっしゅる",
+                        "先生が参る",
+                        "先生が来ます"
+                    ],
+                    answer: "先生がいらっしゃる"
+                },
+                {
+                    question: "「見る」の尊敬語は？",
+                    choices: [
+                        "ご覧になる",
+                        "見られる",
+                        "お見えになる",
+                        "ご覧する"
+                    ],
+                    answer: "ご覧になる"
+                },
+                {
+                    question: "「食べる」の尊敬語は？",
+                    choices: [
+                        "お食べになる",
+                        "食べます",
+                        "食べられる",
+                        "召し上がる"
+                    ],
+                    answer: "召し上がる"
+                },
+                {
+                    question: "「友達に会う」の尊敬語は？",
+                    choices: [
+                        "友達に会われる",
+                        "友達にお会いする",
+                        "友達にお会いになろ",
+                        "友達にお会いになる"
+                    ],
+                    answer: "友達にお会いになる"
+                },
+                {
+                    question: "「行く」の謙譲語は？",
+                    choices: [
+                        "行かせていただく",
+                        "いらっしゃる",
+                        "行きます",
+                        "参る"
+                    ],
+                    answer: "参る"
+                },
+                {
+                    question: "「聞く」の謙譲語は？",
+                    choices: [
+                        "お聞きになる",
+                        "聞きます",
+                        "聞かせる",
+                        "伺う"
+                    ],
+                    answer: "伺う"
+                }
+            ],
+            math: [
+                {
+                    question: "長方形の縦が2㎝、横が15㎝のとき、面積は何㎝²？",
+                    choices: [
+                        "30㎝²",
+                        "25㎝²",
+                        "26㎝²",
+                        "17㎝²"
+                    ],
+                    answer: "30㎝²"
+                },
+                {
+                    question: "1辺が6㎝の正三角形の周りの長さは何㎝？",
+                    choices: [
+                        "24㎝",
+                        "16㎝",
+                        "13㎝",
+                        "18㎝"
+                    ],
+                    answer: "18㎝"
+                },
+                {
+                    question: "8 × 7 は？",
+                    choices: [
+                        "54",
+                        "56",
+                        "64",
+                        "48"
+                    ],
+                    answer: "56"
+                },
+                {
+                    question: "72 ÷ 9 は？",
+                    choices: [
+                        "6",
+                        "8",
+                        "9",
+                        "7"
+                    ],
+                    answer: "8"
+                },
+                {
+                    question: "15 + 28 は？",
+                    choices: [
+                        "33",
+                        "43",
+                        "53",
+                        "42"
+                    ],
+                    answer: "43"
+                },
+                {
+                    question: "50 - 17 は？",
+                    choices: [
+                        "23",
+                        "43",
+                        "33",
+                        "27"
+                    ],
+                    answer: "33"
+                },
+                {
+                    question: "1時間は何分？",
+                    choices: [
+                        "100分",
+                        "30分",
+                        "60分",
+                        "90分"
+                    ],
+                    answer: "60分"
+                },
+                {
+                    question: "半径5㎝の円の直径は？",
+                    choices: [
+                        "5㎝",
+                        "10㎝",
+                        "15㎝",
+                        "20㎝"
+                    ],
+                    answer: "10㎝"
+                },
+                {
+                    question: "1000m は何km？",
+                    choices: [
+                        "1km",
+                        "10km",
+                        "100km",
+                        "0.1km"
+                    ],
+                    answer: "1km"
+                },
+                {
+                    question: "3個で120円のリンゴがあります。1個はいくら？",
+                    choices: [
+                        "30円",
+                        "40円",
+                        "50円",
+                        "60円"
+                    ],
+                    answer: "40円"
+                }
+            ]
+        }
+
+        function shuffleArray(array) {
+
+            const newArray = [...array];
+
+            for (let i = newArray.length - 1; i > 0; i--) {
+
+                const j = Math.floor(Math.random() * (i + 1));
+
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+
+            return newArray;
+        }
+
+        let currentSubject = "";
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+
+        let score = 0;
+        let time = 30;
+        let timer;
+
+        function showScreen(screenId) {
+            document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+            document.getElementById(screenId).classList.add("active");
+        }
+
+        subjbuttons.forEach(button => {
+            button.onclick = () => {
+
+                currentSubject = button.dataset.subj;
+
+                currentQuestions = shuffleArray(quizData[currentSubject]);
+
+                currentQuestionIndex = 0;
+
+                score = 0;
+                time = 30;
+
+                scoreText.textContent = "正解数：" + score + "問";
+                timerText.textContent = time + "秒";
+
+                startTimer();
+
+                showScreen("quiz-screen");
+
+                showQuestion();
+
+            };
+        });
+
+        window.app = { showScreen };
+
+        const subjBox = document.querySelector(".subj-box");
+
+        subjBox.addEventListener("mousedown", (e) => {
+
+            // ボタン押した時は発動しない
+            if (e.target.tagName === "BUTTON") return;
+
+            subjBox.classList.add("pressed");
+        });
+
+        document.addEventListener("mouseup", () => {
+            subjBox.classList.remove("pressed");
+        });
+
+        function showQuestion() {
+
+            const questionData = currentQuestions[currentQuestionIndex];
+
+            questiontext.textContent = questionData.question;
+
+            choices.innerHTML = "";
+
+            const shuffledChoices = shuffleArray(questionData.choices);
+
+            shuffledChoices.forEach(choice => {
+
+                choices.innerHTML += `
+                    <button class="choice-btn">
+                        ${choice}
+                    </button>
+                `;
+            });
+
+            const choiceButtons = document.querySelectorAll(".choice-btn");
+
+            choiceButtons.forEach(button => {
+                button.onclick = () => {
+                    choiceButtons.forEach(btn => {
+                        btn.disabled = true;
+                    });
+                    if (button.textContent.trim() === questionData.answer) {
+
+                        message.textContent = "正解！！"
+
+                        message.classList.remove("wrong");
+                        message.classList.add("correct");
+
+                        score++;
+
+                        scoreText.textContent = "正解数：" + score + "問";
+
+                    } else {
+
+                        message.textContent = "不正解……"
+
+                        message.classList.remove("correct");
+                        message.classList.add("wrong");
+
+                    }
+
+                    currentQuestionIndex++;
+
+                    setTimeout(() => {
+
+                        message.textContent = "";
+
+                        if (currentQuestionIndex < quizData[currentSubject].length) {
+
+                            showQuestion();
+
+                        } else {
+
+                            clearInterval(timer);
+
+                            resultText.textContent = "正解数：" + score + "問！！"
+
+                            showScreen("result-screen");
+
+                        }
+                    }, 1500);
+                };
+            });
+        }
+
+        function startTimer() {
+
+            clearInterval(timer);
+
+            timer = setInterval(() => {
+
+                time--;
+
+                timerText.textContent = time + "秒";
+
+                if (time <= 0) {
+
+                    clearInterval(timer);
+
+                    resultText.textContent = "正解数：" + score + "問！！"
+
+                    showScreen("result-screen");
+
+                }
+            }, 1500);
+        }
+
+        restartbtn.onclick = function () {
+
+            currentQuestionIndex = 0;
+            score = 0;
+            time = 30;
+
+            scoreText.textContent = "正解数：" + score + "問";
+            timerText.textContent = "30秒";
+
+            showScreen("quiz-screen");
+
+        }
+
+        restartbtn2.onclick = function () {
+
+            currentQuestionIndex = 0;
+            score = 0;
+            time = 30;
+
+            scoreText.textContent = "正解数：" + score + "問";
+            timerText.textContent = "30秒";
+
+            showScreen("subj-select-screen");
+
+        }
+
+    </script>
+</body>
+
+</html>
