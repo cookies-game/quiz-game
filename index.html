@@ -991,7 +991,7 @@
                     answer: "急いでる時こそ遠回りをした方がいい"
                 },
                 {
-                    question: "七転び八起き",
+                    question: "「七転び八起き」の意味は？",
                     choices: [
                         "七回転んだらそこで試合終了",
                         "七回転んで八回起きればいいことがある",
@@ -1001,7 +1001,7 @@
                     answer: "何度失敗してもあきらめずに立ち上がる"
                 },
                 {
-                    question: "井の中の蛙大海を知らず",
+                    question: "「井の中の蛙大海を知らず」の意味は？",
                     choices: [
                         "井戸の中の蛙は泳ぎが得意",
                         "狭い範囲しか知らない人は広い世界を知らない",
@@ -1011,7 +1011,7 @@
                     answer: "狭い範囲しか知らない人は広い世界を知らない"
                 },
                 {
-                    question: "雨降って地固まる",
+                    question: "「雨降って地固まる」の意味は？",
                     choices: [
                         "雨が降ると地面が固まる",
                         "人とトラブルがあった後は仲が深まる",
@@ -1141,14 +1141,14 @@
                     answer: "召し上がる"
                 },
                 {
-                    question: "「友達に会う」の尊敬語は？",
+                    question: "「社長に会う」の尊敬語は？",
                     choices: [
-                        "友達に会われる",
-                        "友達にお会いする",
-                        "友達にお会いになろ",
-                        "友達にお会いになる"
+                        "社長に会われる",
+                        "社長にお会いする",
+                        "社長にお会いになろ",
+                        "社長にお会いになる"
                     ],
-                    answer: "友達にお会いになる"
+                    answer: "社長にお会いする"
                 },
                 {
                     question: "「行く」の謙譲語は？",
@@ -1511,7 +1511,8 @@
                 await setDoc(doc(db, "users", userID), {
                     name: playerName,
                     level: level,
-                    exp: exp
+                    exp: exp,
+                    maxexp: maxexp
                 }, { merge: true });
 
                 localStorage.setItem("userName", playerName);
@@ -1540,6 +1541,7 @@
 
                     if (data.level !== undefined) level = data.level;
                     if (data.exp !== undefined) exp = data.exp;
+                    if (data.maxexp !== undefined) maxexp = data.maxexp;
 
                     updateLevelUI();
                 } else {
@@ -1580,7 +1582,8 @@
         async function saveProgress() {
             await setDoc(doc(db, "users", userID), {
                 level,
-                exp
+                exp,
+                maxexp
             }, { merge: true });
         }
 
