@@ -13,6 +13,7 @@
             box-sizing: border-box;
         }
 
+        /* ===== ライトモード（デフォルト） ===== */
         body {
             background: white;
         }
@@ -55,13 +56,160 @@
             transform: translate(-50%, -50%) scale(1);
             cursor: pointer;
             transition: 0.3s;
+            text-shadow: 2px 2px 6px rgb(45, 45, 45);
         }
 
         .setting-btn:hover {
             transform: translate(-50%, -50%) scale(1.3);
+            text-shadow: 3px 3px 8px rgb(80, 80, 80);
         }
 
         .setting-btn:active {
+            transform: translate(-50%, -50%) scale(1);
+            text-shadow: 2px 2px 6px rgb(45, 45, 45);
+        }
+
+        .version {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            font-size: 17px;
+        }
+
+        #setting-screen {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9998;
+        }
+
+        #setting-screen.active {
+            display: flex;
+        }
+
+        .setting-box {
+            width: 500px;
+            height: 550px;
+            background: white;
+            border: 2px solid black;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 20px;
+            box-shadow: 5px 5px 15px rgb(45, 45, 45);
+            z-index: 9999;
+            position: relative;
+        }
+
+        .setting-title {
+            position: absolute;
+            top: 7%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 30px;
+        }
+
+        .setting-description {
+            position: absolute;
+            top: 12%;
+        }
+
+        .name-input {
+            width: 365px;
+            padding: 7px;
+            position: absolute;
+            top: 20%;
+            background: white;
+            border: 1px solid black;
+            border-radius: 15px;
+            font-size: 17px;
+        }
+
+        .save-btn {
+            width: 80px;
+            padding: 7px;
+            position: absolute;
+            top: 20%;
+            right: 4%;
+            background: white;
+            border: 1px solid black;
+            border-radius: 15px;
+            font-size: 14px;
+            cursor: pointer;
+            transform: scale(1);
+            transition: 0.3s;
+        }
+
+        .save-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .save-btn:active {
+            transform: scale(1);
+        }
+
+        .theme-description {
+            position: absolute;
+            top: 30%;
+        }
+
+        .theme-select-btn {
+            position: absolute;
+            top: 38%;
+            width: 365px;
+            padding: 10px;
+            border: 1px solid black;
+            border-radius: 17px;
+            font-size: 15px;
+        }
+
+        .save-btn2 {
+            position: absolute;
+            top: 38%;
+            right: 2%;
+            width: 95px;
+            padding: 9px;
+            background: white;
+            border: 1px solid black;
+            border-radius: 15px;
+            font-size: 14px;
+            cursor: pointer;
+            transform: scale(1);
+            transition: 0.3s;
+        }
+
+        .save-btn2:hover {
+            transform: scale(1.1);
+        }
+
+        .save-btn2:active {
+            transform: scale(1);
+        }
+
+        .home-btn3 {
+            width: 430px;
+            padding: 7px;
+            position: fixed;
+            bottom: 10%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(1);
+            background: white;
+            border: 1px solid black;
+            border-radius: 15px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .home-btn3:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        .home-btn3:active {
             transform: translate(-50%, -50%) scale(1);
         }
 
@@ -327,16 +475,86 @@
 
             box-shadow: none;
         }
+
+        /* ===== ダークモード ===== */
+        :root {
+            --hover-color: rgb(115, 215, 255);
+        }
+
+        body.dark .setting-box,
+        body.dark .subj-box,
+        body.dark .setting-btn,
+        body.dark .result-box,
+        body.dark {
+            background: rgb(30, 30, 30);
+            color: white;
+        }
+
+        body.dark .question-text,
+        body.dark .score,
+        body.dark .timer,
+        body.dark .choice-btn,
+        body.dark .start-btn,
+        body.dark .home-btn,
+        body.dark .restart-btn,
+        body.dark .restart-btn2,
+        body.dark .home-btn2,
+        body.dark .save-btn,
+        body.dark .home-btn3,
+        body.dark .subj,
+        body.dark .name-input,
+        body.dark .theme-select-btn,
+        body.dark .save-btn2 {
+            background: rgb(45, 45, 45);
+            color: white;
+            border: 2px solid rgb(45, 45, 45);
+        }
+
+        body.dark .choice-btn,
+        body.dark .subj-box,
+        body.dark .result-box,
+        body.dark .question-text,
+        body.dark .name-input,
+        body.dark .save-btn,
+        body.dark .theme-select-btn,
+        body.dark .save-btn2,
+        body.dark .start-btn,
+        body.dark .home-btn,
+        body.dark .home-btn2,
+        body.dark .home-btn3,
+        body.dark .subj {
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        body.dark .start-btn:hover,
+        body.dark .subj:hover,
+        body.dark .home-btn:hover,
+        body.dark .restart-btn:hover,
+        body.dark .restart-btn2:hover,
+        body.dark .home-btn2:hover,
+        body.dark .save-btn:hover,
+        body.dark .home-btn3:hover,
+        body.dark .choice-btn:hover,
+        body.dark .save-btn2:hover {
+            border-color: var(--hover-color);
+            box-shadow: 0 0 12px var(--hover-color);
+        }
+
     </style>
 </head>
 
 <body>
 
+    <button class="setting-btn" onclick="openSetting()">
+        🛠️
+    </button>
+
+    <p class="version">
+        ver.1.1.0
+    </p>
+
     <div id="home-screen" class="screen active">
 
-        <button class="setting-btn">
-            🛠️
-        </button>
 
         <button class="start-btn" onclick="app.showScreen('subj-select-screen')">
             ゲームプレイ
@@ -422,12 +640,107 @@
 
     </div>
 
+    <div id="setting-screen" class="screen">
+        <div class="setting-box">
+            <h2 class="setting-title">
+                設定🛠️
+            </h2>
+
+            <p class="setting-description">
+                名前変更（15文字以内）
+            </p>
+
+            <input class="name-input" type="text" maxlength="15" placeholder="例：「田中太郎」">
+
+            <button class="save-btn">
+                保存する
+            </button>
+
+            <div class="theme-select">
+                <p class="theme-description">
+                    テーマを変更
+                </p>
+                <select class="theme-select-btn">
+                    <option value="light">ライトモードにする（デフォルト）</option>
+                    <option value="dark">ダークモードにする</option>
+                </select>
+                <button class="save-btn2">
+                    適応させる
+                </button>
+            </div>
+
+            <button class="home-btn3" onclick="closeSetting()">
+                戻る
+            </button>
+        </div>
+    </div>
+
     <script type="module">
+
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-analytics.js";
+        import {
+            getFirestore,
+            doc,
+            setDoc,
+            getDoc
+        } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+            apiKey: "AIzaSyDl1KeQmi-3ipoOw3GIaM1iq27WWgRTw5g",
+            authDomain: "quiz-game-14052.firebaseapp.com",
+            projectId: "quiz-game-14052",
+            storageBucket: "quiz-game-14052.firebasestorage.app",
+            messagingSenderId: "685737591431",
+            appId: "1:685737591431:web:16ec4fd2781948337b6e22",
+            measurementId: "G-3HDMSE6ZYK"
+        };
+
+        function createUserId() {
+            return "user_" + Math.random().toString(36).substring(2, 10);
+        }
+        let userId = localStorage.getItem("userId");
+        if (!userId) {
+            userId = createUserId();
+            localStorage.setItem("userId", userId);
+        }
+
+        let userName = localStorage.getItem("userName");
+        if (!userName) {
+            userName = "Guest666";
+        }
+
+        async function createUserDataIfFirstTime() {
+
+            const docRef = doc(db, "users", userId);
+            const docSnap = await getDoc(docRef);
+
+            if (!docSnap.exists()) {
+
+                await setDoc(docRef, {
+                    name: userName,
+                    createdAt: Date.now()
+                });
+
+                console.log("初回ユーザーデータ作成");
+            }
+        }
+
+        // Initialize Firebase
+        const firebaseApp = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(firebaseApp);
+        const db = getFirestore(firebaseApp);
 
         const homescreen = document.getElementById("home-screen");
         const subjscreen = document.getElementById("subj-select-screen");
         const quizscreen = document.getElementById("quiz-screen");
         const resultscreen = document.getElementById("result-screen");
+        const settingscreen = document.getElementById("setting-screen");
 
         const startbtn = document.querySelector(".start-btn");
         const homebtn = document.querySelector(".home-btn");
@@ -441,6 +754,28 @@
         const choices = document.querySelector(".choices");
         const result = document.querySelector(".result");
         const resultText = document.querySelector(".result-text");
+        const nameInput = document.querySelector(".name-input");
+        const savebtn = document.querySelector(".save-btn");
+        const themeSelect = document.querySelector(".theme-select-btn");
+        const savebtn2 = document.querySelector(".save-btn2");
+
+        window.onload = async () => {
+
+            nameInput.value = userName;
+
+            await createUserDataIfFirstTime();
+
+            loadName();
+
+            const savedTheme = localStorage.getItem("theme");
+
+            if (savedTheme === "dark") {
+
+                document.body.classList.add("dark");
+                themeSelect.value = "dark";
+
+            }
+        };
 
         const quizData = {
             japanese: [
@@ -915,10 +1250,12 @@
                     showScreen("result-screen");
 
                 }
-            }, 1500);
+            }, 1000);
         }
 
         restartbtn.onclick = function () {
+
+            currentQuestions = shuffleArray(quizData[currentSubject]);
 
             currentQuestionIndex = 0;
             score = 0;
@@ -927,7 +1264,11 @@
             scoreText.textContent = "正解数：" + score + "問";
             timerText.textContent = "30秒";
 
+            startTimer();
+
             showScreen("quiz-screen");
+
+            showQuestion();
 
         }
 
@@ -942,6 +1283,85 @@
 
             showScreen("subj-select-screen");
 
+        }
+
+        window.openSetting = function () {
+            settingscreen.classList.add("active");
+        }
+
+        window.closeSetting = function () {
+            settingscreen.classList.remove("active");
+        }
+
+        // ユーザー名保存処理
+        savebtn.onclick = async function () {
+
+            const playerName = nameInput.value.trim();
+
+            if (playerName === "") {
+                alert("名前を入力してください");
+                return;
+            }
+
+            try {
+                await setDoc(doc(db, "users", userId), {
+                    name: playerName
+                }, { merge: true });
+
+                localStorage.setItem("userName", playerName);
+                userName = playerName;
+                alert("名前を保存しました")
+                settingscreen.classList.remove("active");
+            } catch (error) {
+                console.error(error);
+                alert("保存に失敗しました");
+            }
+        }
+
+        // ユーザー名・データ読み込み処理
+        async function loadName() {
+            try {
+                const docRef = doc(db, "users", userId);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (data.name) {
+                        nameInput.value = data.name;
+                        localStorage.setItem("userName", data.name);
+                        userName = data.name;
+                    }
+                } else {
+                    nameInput.value = userName;
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        loadName();
+
+        savebtn2.onclick = function () {
+
+            const selectedTheme = themeSelect.value;
+
+            if (selectedTheme === "dark") {
+
+                document.body.classList.add("dark");
+
+                localStorage.setItem("theme", "dark");
+
+                alert("適応しました！")
+
+            } else {
+
+                document.body.classList.remove("dark");
+
+                localStorage.setItem("theme", "light");
+
+                alert("適応しました！")
+
+            }
         }
 
     </script>
