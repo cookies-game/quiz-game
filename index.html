@@ -701,13 +701,13 @@
             measurementId: "G-3HDMSE6ZYK"
         };
 
-        function createUserId() {
+        function createuserID() {
             return "user_" + Math.random().toString(36).substring(2, 10);
         }
-        let userId = localStorage.getItem("userId");
-        if (!userId) {
-            userId = createUserId();
-            localStorage.setItem("userId", userId);
+        let userID = localStorage.getItem("userID");
+        if (!userID) {
+            userID = createuserID();
+            localStorage.setItem("userID", userID);
         }
 
         let userName = localStorage.getItem("userName");
@@ -717,7 +717,7 @@
 
         async function createUserDataIfFirstTime() {
 
-            const docRef = doc(db, "users", userId);
+            const docRef = doc(db, "users", userID);
             const docSnap = await getDoc(docRef);
 
             if (!docSnap.exists()) {
@@ -1304,7 +1304,7 @@
             }
 
             try {
-                await setDoc(doc(db, "users", userId), {
+                await setDoc(doc(db, "users", userID), {
                     name: playerName
                 }, { merge: true });
 
@@ -1321,7 +1321,7 @@
         // ユーザー名・データ読み込み処理
         async function loadName() {
             try {
-                const docRef = doc(db, "users", userId);
+                const docRef = doc(db, "users", userID);
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists()) {
@@ -1353,6 +1353,8 @@
 
                 alert("適応しました！")
 
+                settingscreen.classList.remove("active");
+
             } else {
 
                 document.body.classList.remove("dark");
@@ -1360,6 +1362,8 @@
                 localStorage.setItem("theme", "light");
 
                 alert("適応しました！")
+
+                settingscreen.classList.remove("active");
 
             }
         }
