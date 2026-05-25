@@ -237,11 +237,6 @@
             gap: 20px;
         }
 
-        .subj-box.pressed {
-            box-shadow: none;
-            transform: translateY(-3px);
-        }
-
         .description {
             font-size: 20px;
         }
@@ -615,6 +610,48 @@
             box-shadow: 3px 0 15px rgba(0, 0, 0, 0.3);
         }
 
+        #fullscreen-screen {
+            position: fixed;
+            inset: 0;
+            background: white;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        #fullscreen-screen.active {
+            display: flex;
+        }
+
+        .fullscreen-box {
+            background: white;
+            padding: 40px;
+            border-radius: 25px;
+            text-align: center;
+        }
+
+        .fullscreen-text {
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .fullscreen-btn {
+            font-size: 22px;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+        }
+
+        .cancel-btn {
+            font-size: 22px;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+        }
+
         /* ===== ダークモード ===== */
         :root {
             --hover-color: rgb(115, 215, 255);
@@ -676,6 +713,10 @@
         body.dark .save-btn2:hover {
             border-color: var(--hover-color);
             box-shadow: 0 0 12px var(--hover-color);
+        }
+
+        body.dark .fullscreen-text {
+            color: black;
         }
 
     </style>
@@ -847,6 +888,28 @@
 
     </div>
 
+    <div id="fullscreen-screen">
+
+        <div class="fullscreen-box">
+
+            <p class="fullscreen-text">
+                このゲームは<br>
+                全画面でプレイすることを<br>
+                推奨します。
+            </p>
+
+            <button class="fullscreen-btn" onclick="enterFullScreen()">
+                全画面にする
+            </button>
+
+            <button class="cancel-btn">
+                キャンセル
+            </button>
+
+        </div>
+
+    </div>
+
     <script type="module">
 
         // Import the functions you need from the SDKs you need
@@ -954,7 +1017,17 @@
             loadingscreen.style.opacity = "0";
 
             setTimeout(() => {
+
                 loadingscreen.style.display = "none";
+
+                setTimeout(() => {
+ 
+                    if (!document.fullscreenElement) {
+
+                        document.getElementById("fullscreen-screen")
+                            .classList.add("active");
+                    }
+                }, 500);
             }, 500);
         };
 
@@ -1336,20 +1409,6 @@
 
         window.app = { showScreen };
 
-        const subjBox = document.querySelector(".subj-box");
-
-        subjBox.addEventListener("mousedown", (e) => {
-
-            // ボタン押した時は発動しない
-            if (e.target.tagName === "BUTTON") return;
-
-            subjBox.classList.add("pressed");
-        });
-
-        document.addEventListener("mouseup", () => {
-            subjBox.classList.remove("pressed");
-        });
-
         function showQuestion() {
 
             const questionData = currentQuestions[currentQuestionIndex];
@@ -1607,6 +1666,31 @@
 
             document.querySelector(".exp-text").textContent = `
                 ${exp} / ${maxexp}`;
+        }
+
+        function isFullScreen() {
+            return document.fullscreenElement || document.webkitFullscreenElement;
+        }
+
+        window.enterFullScreen = function() {
+
+            const elem = document.documentElement;
+
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            }
+
+            document
+                .getElementById("fullscreen-screen")
+                .classList.remove("active");
+        }
+
+        document.querySelector(".cancel-btn").onclick = function() {
+            document
+                .getElementById("fullscreen-screen")
+                .classList.remove("active");
         }
 
     </script>
