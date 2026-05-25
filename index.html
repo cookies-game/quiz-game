@@ -1020,6 +1020,11 @@
 
                 loadingscreen.style.display = "none";
 
+                setTimeout(() => {
+
+                    checkFullscreenOverlay();
+
+                }, 500);
             }, 500);
         };
 
@@ -1042,12 +1047,6 @@
                 .getElementById("fullscreen-screen")
                 .classList.add("active");
         }
-
-        setTimeout(() => {
-
-            checkFullscreenOverlay();
-
-        }, 500);
 
         const quizData = {
             japanese: [
