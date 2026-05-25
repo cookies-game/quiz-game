@@ -1020,16 +1020,34 @@
 
                 loadingscreen.style.display = "none";
 
-                setTimeout(() => {
- 
-                    if (!document.fullscreenElement) {
-
-                        document.getElementById("fullscreen-screen")
-                            .classList.add("active");
-                    }
-                }, 500);
             }, 500);
         };
+
+        function isChromebook() {
+
+            const ua = navigator.userAgent.toLowerCase();
+
+            return ua.includes("cros");
+        }
+
+        function checkFullscreenOverlay() {
+
+            // Chromebook以外は出さない
+            if (!isChromebook()) return;
+
+            // すでに全画面なら出さない
+            if (document.fullscreenElement) return;
+
+            document
+                .getElementById("fullscreen-screen")
+                .classList.add("active");
+        }
+
+        setTimeout(() => {
+
+            checkFullscreenOverlay();
+
+        }, 500);
 
         const quizData = {
             japanese: [
@@ -1692,6 +1710,20 @@
                 .getElementById("fullscreen-screen")
                 .classList.remove("active");
         }
+
+        document.addEventListener("fullscreenchange", () => {
+
+            const overlay = document.getElementById("fullscreen-screen");
+
+            if (!document.fullscreenElement) {
+
+                checkFullscreenOverlay();
+
+            } else {
+
+                overlay.classList.remove("active");
+            }
+        });
 
     </script>
 </body>
