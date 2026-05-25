@@ -1718,7 +1718,14 @@
 
                 setTimeout(() => {
 
-                    checkFullscreenOverlay();
+                    const result = confirm("本当に全画面を解除しますか？");
+
+                    if (result) {
+
+                        enterFullScreen();
+
+                    } else {
+                    }
                     
                 }, 300);
 
