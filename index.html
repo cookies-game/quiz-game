@@ -1041,7 +1041,7 @@
             if (!isChromebook()) return;
 
             // すでに全画面なら出さない
-            if (document.fullscreenElement) return;
+            if (isFullScreen()) return;
 
             document
                 .getElementById("fullscreen-screen")
@@ -1714,9 +1714,13 @@
 
             const overlay = document.getElementById("fullscreen-screen");
 
-            if (!document.fullscreenElement) {
+            if (!isFullScreen()) {
 
-                checkFullscreenOverlay();
+                setTimeout(() => {
+
+                    checkFullscreenOverlay();
+                    
+                }, 300);
 
             } else {
 
