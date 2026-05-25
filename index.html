@@ -55,11 +55,11 @@
             background: none;
             border: none;
             position: static;
-            margin-right: auto;
             transform: scale(1);
             cursor: pointer;
             transition: 0.3s;
             text-shadow: 2px 2px 6px rgb(45, 45, 45);
+            color: white;
         }
 
         .setting-btn:hover {
@@ -76,7 +76,7 @@
             position: fixed;
             bottom: 10px;
             left: 10px;
-            font-size: 17px;
+            font-size: 20px;
         }
 
         #setting-screen {
@@ -394,6 +394,14 @@
             box-shadow: none;
         }
 
+        .choice-btn:disabled {
+            cursor: not-allowed;
+        }
+
+        .choice-btn:disabled:hover {
+            transform: none;
+        }
+
         #result-screen {
             width: 100%;
             min-height: 100vh;
@@ -561,11 +569,10 @@
             align-items: center;
             gap: 10px;
             width: 200px;
-            margin-left: auto;
         }
 
         .level {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: bold;
             margin-bottom: 5px;
         }
@@ -608,6 +615,32 @@
             padding: 0 15px;
             background: black;
             box-shadow: 3px 0 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .left-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-right: auto;
+        }
+
+        .right-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-left: auto;
+        }
+
+        .currencies {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .currency {
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
         }
 
         #fullscreen-screen {
@@ -719,6 +752,17 @@
             color: black;
         }
 
+        body.dark .choice-btn:disabled {
+            color: rgb(170, 170,170);
+            cursor: not-allowed;
+        }
+
+        body.dark .choice-btn:disabled:hover {
+            transform: none;
+            border: 2px solid rgb(45, 45, 45);
+            box-shadow: none;
+        }
+
     </style>
 </head>
 
@@ -726,24 +770,52 @@
 
     <header class="header">
 
-        <button class="setting-btn" onclick="openSetting()">
-            🛠️
-        </button>
+        <div class="left-header">
 
-        <div class="level-exp-bar">
+            <button class="setting-btn" onclick="openSetting()">
+                🛠️
+            </button>
 
-            <p class="level"></p>
+            <div class="currencies">
 
-            <div class="exp-bar">
+                <p class="currency coin">
+                    🪙 <span class="coin-text">0</span>
+                </p>
 
-                <div class="exp-fill"></div>
+                <p class="currency gem">
+                    💎 <span class="gem-text">0</span>
+                </p>
 
-                <span class="exp-text"></span>
+                <p class="currency point">
+                    ⚡ <span class="point-text">0</span>
+                </p>
+
+                <p class="currency ticket">
+                    🎫 <span class="ticket-text">0</span>
+                </p>
 
             </div>
 
         </div>
-        
+
+        <div class="right-header">
+
+            <div class="level-exp-bar">
+
+                <p class="level"></p>
+
+                <div class="exp-bar">
+
+                    <div class="exp-fill"></div>
+
+                    <span class="exp-text"></span>
+
+                </div>
+
+            </div>
+
+        </div>
+
     </header>
 
 
@@ -959,7 +1031,16 @@
 
                 await setDoc(docRef, {
                     name: userName,
-                    createdAt: Date.now()
+                    createdAt: Date.now(),
+
+                    level: 1,
+                    exp: 0,
+                    maxexp: 100,
+
+                    coin: 0,
+                    gem: 0,
+                    point: 0,
+                    ticket: 0
                 });
 
                 console.log("初回ユーザーデータ作成");
@@ -1004,6 +1085,8 @@
             await loadName();
 
             updateLevelUI();
+
+            updatecurrencyUI();
 
             const savedTheme = localStorage.getItem("theme");
 
@@ -1238,7 +1321,7 @@
                         "社長にお会いになろ",
                         "社長にお会いになる"
                     ],
-                    answer: "社長にお会いする"
+                    answer: "社長にお会いになる"
                 },
                 {
                     question: "「行く」の謙譲語は？",
@@ -1392,6 +1475,38 @@
         let maxexp = 100;
         let getexp = 0;
 
+        let coin = 0;   // 🪙
+        let gem = 0;    // 💎
+        let point = 0;  // ⚡
+        let ticket = 0; // 🎫
+        let getcoin = 0;
+        let getgem = 0;
+        let getpoint = 0;
+        let getticket = 0;
+
+        function addCurrency(type, amount) {
+
+            if (type === "coin") {
+                coin += amount;
+            }
+
+            if (type === "gem") {
+                gem += amount;
+            }
+
+            if (type === "point") {
+                point += amount;
+            }
+
+            if (type === "ticket") {
+                ticket += amount;
+            }
+
+            updatecurrencyUI();
+
+            saveProgress();
+        }
+
         function showScreen(screenId) {
             document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
             document.getElementById(screenId).classList.add("active");
@@ -1409,6 +1524,10 @@
                 score = 0;
                 time = 30;
                 getexp = 0;
+                getcoin = 0;
+                getgem = 0;
+                getpoint = 0;
+                getticket = 0;
 
                 scoreText.textContent = "正解数：" + score + "問";
                 timerText.textContent = time + "秒";
@@ -1463,6 +1582,8 @@
 
                         getexp += 10;
 
+                        getcoin += 10;
+
                         scoreText.textContent = "正解数：" + score + "問";
 
                     } else {
@@ -1490,7 +1611,11 @@
 
                             addExp(getexp);
 
+                            addCurrency("coin", getcoin);
+
                             updateLevelUI();
+
+                            updatecurrencyUI();
 
                             saveProgress();
 
@@ -1520,7 +1645,11 @@
 
                     addExp(getexp);
 
+                    addCurrency("coin", getcoin);
+
                     updateLevelUI();
+
+                    updatecurrencyUI();
 
                     saveProgress();
 
@@ -1540,6 +1669,10 @@
             score = 0;
             time = 30;
             getexp = 0;
+            getcoin = 0;
+            getgem = 0;
+            getpoint = 0;
+            getticket = 0;
 
             scoreText.textContent = "正解数：" + score + "問";
             timerText.textContent = "30秒";
@@ -1618,8 +1751,14 @@
                     if (data.level !== undefined) level = data.level;
                     if (data.exp !== undefined) exp = data.exp;
                     if (data.maxexp !== undefined) maxexp = data.maxexp;
+                    if (data.coin !== undefined) coin = data.coin;
+                    if (data.gem !== undefined) gem = data.gem;
+                    if (data.point !== undefined) point = data.point;
+                    if (data.ticket !== undefined) ticket = data.ticket;
 
                     updateLevelUI();
+
+                    updatecurrencyUI();
                 } else {
                     nameInput.value = userName;
                 }
@@ -1659,7 +1798,11 @@
             await setDoc(doc(db, "users", userID), {
                 level,
                 exp,
-                maxexp
+                maxexp,
+                coin,
+                gem,
+                point,
+                ticket
             }, { merge: true });
         }
 
@@ -1681,15 +1824,25 @@
             const percent = (exp / maxexp) * 100;
             document.querySelector(".exp-fill").style.width = percent + "%";
 
-            document.querySelector(".exp-text").textContent = `
-                ${exp} / ${maxexp}`;
+            document.querySelector(".exp-text").textContent = `${exp} / ${maxexp}`;
+        }
+
+        function updatecurrencyUI() {
+
+            document.querySelector(".coin-text").textContent = coin;
+
+            document.querySelector(".gem-text").textContent = gem;
+
+            document.querySelector(".point-text").textContent = point;
+
+            document.querySelector(".ticket-text").textContent = ticket;
         }
 
         function isFullScreen() {
             return document.fullscreenElement || document.webkitFullscreenElement;
         }
 
-        window.enterFullScreen = function() {
+        window.enterFullScreen = function () {
 
             const elem = document.documentElement;
 
@@ -1704,36 +1857,11 @@
                 .classList.remove("active");
         }
 
-        document.querySelector(".cancel-btn").onclick = function() {
+        document.querySelector(".cancel-btn").onclick = function () {
             document
                 .getElementById("fullscreen-screen")
                 .classList.remove("active");
         }
-
-        document.addEventListener("fullscreenchange", () => {
-
-            const overlay = document.getElementById("fullscreen-screen");
-
-            if (!isFullScreen()) {
-
-                setTimeout(() => {
-
-                    const result = confirm("本当に全画面を解除しますか？");
-
-                    if (result) {
-                    } else {
-                        
-                        enterFullScreen();
-
-                    }
-                    
-                }, 300);
-
-            } else {
-
-                overlay.classList.remove("active");
-            }
-        });
 
     </script>
 </body>
