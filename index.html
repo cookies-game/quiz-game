@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 
@@ -19,10 +18,6 @@
             background: white;
         }
 
-        body .level {
-            color: white;
-        }
-
         .screen {
             display: none;
         }
@@ -31,24 +26,290 @@
             display: flex;
         }
 
-        .start-btn {
+        .title {
+            font-size: 70px;
             position: absolute;
-            top: 50%;
+            top: 32%;
             left: 50%;
             transform: translate(-50%, -50%);
+            color: black;
+            text-shadow: 3px 3px 10px rgb(30, 30, 30);
+        }
+
+        .buttons {
+            position: absolute;
+            top: 55%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .start-btn {
             font-size: 30px;
             padding: 13px 40px;
             background: white;
             border: 2px solid black;
-            border-radius: 30px;
             box-shadow: 5px 5px 15px black;
+            border-radius: 30px;
             cursor: pointer;
             transition: 0.3s;
         }
 
         .start-btn:hover {
             box-shadow: none;
-            transform: translate(-50%, -50%) translateY(-3px);
+            transform: translateY(-3px);
+        }
+
+        .shop-btn {
+            font-size: 30px;
+            padding: 13px 40px;
+            background: white;
+            border: 2px solid black;
+            box-shadow: 5px 5px 15px black;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .shop-btn:hover {
+            box-shadow: none;
+            transform: translateY(-3px);
+        }
+
+        #shop-screen {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9998;
+        }
+
+        #shop-screen.active {
+            display: flex;
+        }
+
+        .shop-box {
+            width: 550px;
+            max-height: 75vh;
+            background: white;
+            border-radius: 40px;
+            padding: 25px;
+            border: 2px solid black;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .skills::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .skills::-webkit-scrollbar-track {
+            background: rgb(255, 245, 245);
+            border-radius: 10px;
+        }
+
+        .skills::-webkit-scrollbar-thumb {
+            background: black;
+            border-radius: 10px;
+        }
+
+        .shop-title {
+            font-size: 35px;
+            margin-bottom: 10px;
+        }
+
+        .shop-description {
+            font-size: 25px;
+            margin-bottom: 10px;
+        }
+
+        .shop-currency {
+            font-size: 25px;
+            margin-bottom: 10px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .skills {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding-right: 15px;
+            overflow-y: auto;
+        }
+
+        .skill-card {
+            width: 100%;
+            background: white;
+            border: 2px solid black;
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            position: relative;
+        }
+
+        .skill-name {
+            font-size: 24px;
+        }
+
+        .skill-description {
+            font-size: 16px;
+        }
+
+        .skill-price {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .buy-btn {
+            padding: 5px;
+            font-size: 20px;
+            border: 2px solid black;
+            background: white;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .buy-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .buy-btn:active {
+            transform: scale(1);
+        }
+
+        .buy-btn:disabled {
+            background: rgb(180, 180, 180);
+            color: rgb(90, 90, 90);
+            border: 2px solid rgb(180, 180, 180);
+            cursor: not-allowed;
+            opacity: 0.7;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .buy-btn:disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .inventory-box {
+            width: 550px;
+            height: 75vh;
+            background: white;
+            border: 2px solid black;
+            border-radius: 25px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            position: relative;
+            padding-top: 30px;
+        }
+
+        .close-btn2 {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 60px;
+            height: 60px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 35px;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn2:hover {
+            color: white;
+            background: rgb(255, 50, 50);
+        }
+
+        .equipped-btn {
+            background: white;
+            border: 2px solid black;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: 0.3s;
+        }
+
+        .equipped-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgb(120, 120, 120);
+        }
+
+        .equipped-btn:active {
+            transform: scale(1);
+            box-shadow: none;
+        }
+
+        .equipped-btn:disabled {
+            background: #707070;
+            cursor: not-allowed;
+        }
+
+        .equipped-btn:disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 60px;
+            height: 60px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 35px;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            color: white;
+            background: rgb(255, 50, 50);
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            border-bottom: 3px solid #333;
+        }
+
+        .tab {
+            border: none;
+            background: transparent;
+            color: black;
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        .tab.active {
+            border-bottom: 3px solid black;
+            color: black;
         }
 
         .setting-btn {
@@ -69,6 +330,28 @@
         }
 
         .setting-btn:active {
+            transform: scale(1);
+            text-shadow: 2px 2px 6px rgb(45, 45, 45);
+        }
+
+        .inventory-btn {
+            font-size: 32px;
+            background: none;
+            border: none;
+            position: static;
+            transform: scale(1);
+            cursor: pointer;
+            transition: 0.3s;
+            text-shadow: 2px 2px 6px rgb(45, 45, 45);
+            color: white;
+        }
+
+        .inventory-btn:hover {
+            transform: scale(1.3);
+            text-shadow: 3px 3px 8px rgb(80, 80, 80);
+        }
+
+        .inventory-btn:active {
             transform: scale(1);
             text-shadow: 2px 2px 6px rgb(45, 45, 45);
         }
@@ -217,6 +500,51 @@
             transform: translate(-50%, -50%) scale(1);
         }
 
+        #inventory-screen {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9998;
+        }
+
+        #inventory-screen.active {
+            display: flex;
+        }
+
+        .skills-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .inventory-skill {
+            border: 2px solid black;
+            border-radius: 20px;
+            padding: 15px;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .inventory-skill-name {
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .inventory-skill-description {
+            font-size: 15px;
+        }
+
+        .inventory-empty {
+            text-align: center;
+            font-size: 18px;
+            opacity: 0.7;
+        }
+
         #subj-select-screen {
             position: absolute;
             top: 50%;
@@ -317,7 +645,15 @@
 
         .message.wrong {
             color: rgb(255, 60, 60);
-            text-shadow: 0 0 4px rgb(255, 60, 60);
+            text-shadow: 0 0 5px rgb(255, 60, 60);
+        }
+
+        .message2 {
+            font-size: 35px;
+            font-weight: bold;
+            height: 40px;
+            color: rgb(95, 255, 95);
+            text-shadow: 0 0 5px rgb(95, 255, 95);
         }
 
         .score,
@@ -576,6 +912,7 @@
             font-size: 20px;
             font-weight: bold;
             margin-bottom: 5px;
+            color: white;
         }
 
         .exp-bar {
@@ -621,14 +958,14 @@
         .left-header {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 10px;
             margin-right: auto;
         }
 
         .right-header {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 10px;
             margin-left: auto;
         }
 
@@ -694,6 +1031,10 @@
         body.dark .setting-box,
         body.dark .subj-box,
         body.dark .result-box,
+        body.dark .shop-box,
+        body.dark .skill-card,
+        body.dark .inventory-box,
+        body.dark .inventory-skill,
         body.dark {
             background: rgb(30, 30, 30);
             color: white;
@@ -704,6 +1045,7 @@
         body.dark .timer,
         body.dark .choice-btn,
         body.dark .start-btn,
+        body.dark .shop-btn,
         body.dark .home-btn,
         body.dark .restart-btn,
         body.dark .restart-btn2,
@@ -713,6 +1055,8 @@
         body.dark .subj,
         body.dark .name-input,
         body.dark .theme-select-btn,
+        body.dark .buy-btn,
+        body.dark .equipped-btn,
         body.dark .save-btn2 {
             background: rgb(45, 45, 45);
             color: white;
@@ -728,11 +1072,17 @@
         body.dark .theme-select-btn,
         body.dark .save-btn2,
         body.dark .start-btn,
+        body.dark .shop-btn,
         body.dark .home-btn,
         body.dark .home-btn2,
         body.dark .home-btn3,
+        body.dark .shop-box,
+        body.dark .skill-card,
+        body.dark .inventory-box,
+        body.dark .inventory-skill,
+        body.dark .buy-btn,
         body.dark .subj {
-            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5);
         }
 
         body.dark .start-btn:hover,
@@ -744,7 +1094,10 @@
         body.dark .save-btn:hover,
         body.dark .home-btn3:hover,
         body.dark .choice-btn:hover,
-        body.dark .save-btn2:hover {
+        body.dark .save-btn2:hover,
+        body.dark .shop-btn:hover,
+        body.dark .equipped-btn:hover,
+        body.dark .buy-btn:hover {
             border-color: var(--hover-color);
             box-shadow: 0 0 12px var(--hover-color);
         }
@@ -754,7 +1107,7 @@
         }
 
         body.dark .choice-btn:disabled {
-            color: rgb(170, 170,170);
+            color: rgb(170, 170, 170);
             cursor: not-allowed;
         }
 
@@ -762,6 +1115,54 @@
             transform: none;
             border: 2px solid rgb(45, 45, 45);
             box-shadow: none;
+        }
+
+        body.dark .skills::-webkit-scrollbar-track {
+            background: white;
+        }
+
+        body.dark .skills::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #4facfe, #00f2fe);
+        }
+
+        body.dark .buy-btn:disabled {
+            box-shadow: none;
+        }
+
+        body.dark .buy-btn:disabled:hover {
+            border: 2px solid rgb(45, 45, 45);
+            box-shadow: none;
+        }
+
+        body.dark .title {
+            background: linear-gradient(0deg, rgb(115, 215, 255), white, rgb(115, 215, 255));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 10px rgb(115, 215, 255);
+        }
+
+        body.dark .tab.active {
+            color: #7dd3fc;
+            text-shadow: 0 0 10px #7dd3fc;
+            border-bottom: 3px solid #7dd3fc;
+        }
+
+        body.dark .close-btn {
+            color: white;
+        }
+
+        body.dark .equipped-btn:disabled {
+            background: #707070;
+            border: 2px solid #707070;
+        }
+
+        body.dark .equipped-btn:disabled:hover {
+            box-shadow: none;
+        }
+
+        body.dark .close-btn2 {
+            color: white;
         }
 
     </style>
@@ -775,6 +1176,10 @@
 
             <button class="setting-btn" onclick="openSetting()">
                 🛠️
+            </button>
+
+            <button class="inventory-btn" onclick="openInventory()">
+                🎒
             </button>
 
             <div class="currencies">
@@ -822,15 +1227,26 @@
 
 
     <p class="version">
-        ver.1.2.0
+        ver.2.3.0
     </p>
 
     <div id="home-screen" class="screen active">
 
+        <h1 class="title">
+            Quiz Game
+        </h1>
 
-        <button class="start-btn" onclick="app.showScreen('subj-select-screen')">
-            ゲームプレイ
-        </button>
+        <div class="buttons">
+
+            <button class="start-btn" onclick="app.showScreen('subj-select-screen')">
+                ゲームプレイ
+            </button>
+
+            <button class="shop-btn" onclick="openshop()">
+                ショップ
+            </button>
+
+        </div>
 
     </div>
 
@@ -876,6 +1292,7 @@
 
     <div id="quiz-screen" class="screen">
         <p class="message"></p>
+        <p class="message2"></p>
         <p class="score">正解数：0問</p>
         <p class="timer">30秒</p>
         <h2 class="question-text"></h2>
@@ -907,6 +1324,63 @@
                 </button>
 
             </div>
+
+        </div>
+
+    </div>
+
+    <div id="shop-screen">
+
+        <div class="shop-box">
+
+            <h2 class="shop-title">
+                ショップ🛒
+            </h2>
+
+            <p class="shop-description">
+                SHOP
+            </p>
+
+            <div class="shop-currency">
+
+                <p class="shop-coin">
+                    🪙 <span class="shop-coin-text">0</span>
+                </p>
+
+                <p class="shop-gem">
+                    💎 <span class="shop-gem-text">0</span>
+                </p>
+
+            </div>
+
+            <div class="skills"></div>
+            
+            <button class="close-btn">
+                ✘
+            </button>
+
+        </div>
+
+
+    </div>
+
+    <div id="inventory-screen">
+
+        <div class="inventory-box">
+
+            <div class="tabs">
+
+                <button class="tab active">
+                    スキル
+                </button>
+
+            </div>
+
+            <div class="skills-container"></div>
+
+            <button class="close-btn2" onclick="closeInventory()">
+                ✘
+            </button>
 
         </div>
 
@@ -1020,7 +1494,8 @@
 
         let userName = localStorage.getItem("userName");
         if (!userName) {
-            userName = "Guest666";
+            const defaultName = ["Guest666", "c00lkid", "1x1x1x1", "John doe", "Jane doe"];
+            userName = defaultName[Math.floor(Math.random() * defaultName.length)];
         }
 
         async function createUserDataIfFirstTime() {
@@ -1041,7 +1516,9 @@
                     coin: 0,
                     gem: 0,
                     point: 0,
-                    ticket: 0
+                    ticket: 0,
+
+                    ownedSkills: []
                 });
 
                 console.log("初回ユーザーデータ作成");
@@ -1050,7 +1527,6 @@
 
         // Initialize Firebase
         const firebaseApp = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(firebaseApp);
         const db = getFirestore(firebaseApp);
 
         const homescreen = document.getElementById("home-screen");
@@ -1066,6 +1542,7 @@
         const restartbtn2 = document.querySelector(".restart-btn2");
         const subjbuttons = document.querySelectorAll(".subj");
         const message = document.querySelector(".message");
+        const message2 = document.querySelector(".message2");
         const scoreText = document.querySelector(".score");
         const timerText = document.querySelector(".timer");
         const questiontext = document.querySelector(".question-text");
@@ -1449,6 +1926,116 @@
             ]
         }
 
+        const skills = [
+            {
+                id: "expboost",
+                name: "expブースト",
+                description: "獲得expが2倍になる",
+                price: 100,
+                currency: "coin"
+            },
+            {
+                id: "coinboost",
+                name: "coinブースト",
+                description: "獲得coinが2倍になる",
+                price: 150,
+                currency: "coin"
+            },
+            {
+                id: "gemboost",
+                name: "gemブースト",
+                description: "gem獲得確率が2倍になる",
+                price: 500,
+                currency: "coin"
+            }
+        ]
+
+        const skillsContainer = document.querySelector(".skills");
+
+        function loadSkills() {
+
+            skillsContainer.innerHTML = "";
+
+            skills.forEach(skill => {
+
+                skillsContainer.innerHTML += `
+                    <div class="skill-card">
+                        
+                        <h3 class="skill-name">
+                            ${skill.name}
+                        </h3>
+                        
+                        <p class="skill-description">
+                            ${skill.description}
+                        </p>
+                        
+                        <p class="skill-price">
+                            🪙 ${skill.price}
+                        </p>
+
+                        ${ownedSkills.includes(skill.id)
+                            ?`
+                                <button class="buy-btn" disabled>
+                                    購入済み
+                                </button>
+                            `
+                            :`
+                                <button class="buy-btn" onclick="buySkill('${skill.id}')">
+                                    購入
+                                </button>
+                            `
+                        }
+                        
+                    </div>
+                `;
+            });
+        }
+
+        window.buySkill = async function(skillId) {
+
+            const skill = skills.find(s => s.id === skillId);
+
+            if (!skill) return;
+
+            // coinで買う
+            if (skill.currency === "coin") {
+
+                if (coin < skill.price) {
+                    alert("coinが足りません");
+                    return;
+                }
+
+                coin -= skill.price;
+            }
+
+            // スキル追加
+            ownedSkills.push(skill.id);
+
+            updatecurrencyUI();
+
+            await saveProgress();
+
+            loadSkills();
+
+            alert(skill.name + "を購入しました！");
+        }
+
+        const shopscreen = document.getElementById("shop-screen");
+
+        window.openshop = function() {
+
+            shopscreen.classList.add("active");
+
+            loadSkills();
+
+        }
+
+        document.querySelector(".close-btn").onclick = function() {
+
+            shopscreen.classList.remove("active");
+
+        }
+
         function shuffleArray(array) {
 
             const newArray = [...array];
@@ -1484,6 +2071,9 @@
         let getgem = 0;
         let getpoint = 0;
         let getticket = 0;
+
+        let ownedSkills = [];
+        let equippedSkill = [];
 
         function addCurrency(type, amount) {
 
@@ -1581,9 +2171,38 @@
 
                         score++;
 
-                        getexp += 10;
+                        let expAmount = 10;
+                        let coinAmount = 10;
 
-                        getcoin += 10;
+                        // expブースト
+                        if (equippedSkill.includes("expboost")) {
+                            expAmount *= 2
+                        }
+
+                        // coinブースト
+                        if (equippedSkill.includes("coinboost")) {
+                            coinAmount *= 2
+                        }
+
+                        getexp += expAmount;
+
+                        getcoin += coinAmount;
+
+                        let gemChance = 0.01;
+
+                        // gemブースト
+                        if (equippedSkill.includes("gemboost")) {
+                            gemChance *= 2;
+                        }
+
+                        message2.textContent = "";
+
+                        if (Math.random() < gemChance) {
+                            
+                            getgem += 1;
+
+                            message2.textContent = "💎ゲット！ 強運だね！"
+                        }
 
                         scoreText.textContent = "正解数：" + score + "問";
 
@@ -1601,6 +2220,7 @@
                     setTimeout(() => {
 
                         message.textContent = "";
+                        message2.textContent = "";
 
                         if (currentQuestionIndex < quizData[currentSubject].length) {
 
@@ -1613,6 +2233,8 @@
                             addExp(getexp);
 
                             addCurrency("coin", getcoin);
+
+                            addCurrency("gem", getgem);
 
                             updateLevelUI();
 
@@ -1647,6 +2269,8 @@
                     addExp(getexp);
 
                     addCurrency("coin", getcoin);
+
+                    addCurrency("gem", getgem);
 
                     updateLevelUI();
 
@@ -1707,6 +2331,24 @@
             settingscreen.classList.remove("active");
         }
 
+        window.inventoryscreen = document.getElementById("inventory-screen");
+
+        window.openInventory = function() {
+
+            inventoryscreen.classList.add("active");
+
+            const container = document.querySelector(".skills-container");
+
+            container.innerHTML
+
+            loadInventory();
+        }
+
+        window.closeInventory = function() {
+
+            inventoryscreen.classList.remove("active");
+        }
+
         // ユーザー名保存処理
         savebtn.onclick = async function () {
 
@@ -1722,7 +2364,11 @@
                     name: playerName,
                     level: level,
                     exp: exp,
-                    maxexp: maxexp
+                    maxexp: maxexp,
+                    coin,
+                    gem,
+                    point,
+                    ticket
                 }, { merge: true });
 
                 localStorage.setItem("userName", playerName);
@@ -1756,6 +2402,8 @@
                     if (data.gem !== undefined) gem = data.gem;
                     if (data.point !== undefined) point = data.point;
                     if (data.ticket !== undefined) ticket = data.ticket;
+                    if (data.ownedSkills !== undefined) ownedSkills = data.ownedSkills;
+                    if (data.equippedSkill !== undefined) equippedSkill = data.equippedSkill;
 
                     updateLevelUI();
 
@@ -1803,7 +2451,9 @@
                 coin,
                 gem,
                 point,
-                ticket
+                ticket,
+                ownedSkills,
+                equippedSkill
             }, { merge: true });
         }
 
@@ -1830,6 +2480,7 @@
 
         function updatecurrencyUI() {
 
+            // ヘッダー側
             document.querySelector(".coin-text").textContent = coin;
 
             document.querySelector(".gem-text").textContent = gem;
@@ -1837,6 +2488,11 @@
             document.querySelector(".point-text").textContent = point;
 
             document.querySelector(".ticket-text").textContent = ticket;
+
+            // ショップ側
+            document.querySelector(".shop-coin-text").textContent = coin;
+            
+            document.querySelector(".shop-gem-text").textContent = gem;
         }
 
         function isFullScreen() {
@@ -1862,6 +2518,72 @@
             document
                 .getElementById("fullscreen-screen")
                 .classList.remove("active");
+        }
+
+        function loadInventory() {
+
+            const container = document.querySelector(".skills-container");
+
+            container.innerHTML = "";
+
+            if (ownedSkills.length === 0) {
+
+                container.innerHTML = `
+                    <p class="inventory-empty">
+                        スキルを所持していません
+                    </p>
+                `;
+
+                return;
+            }
+
+            ownedSkills.forEach(skillId => {
+
+                const skill = skills.find(s => s.id === skillId);
+
+                if (!skill) return;
+
+                container.innerHTML += `
+                    <div class="inventory-skill">
+
+                        <h3 class="inventory-skill-name">
+                            ${skill.name}
+                        </h3>
+                        
+                        <p class="inventory-skill-description">
+                            ${skill.description}
+                        </p>
+
+                        ${
+                            equippedSkill.includes(skill.id)
+                            ?`
+                                <button class="equipped-btn" disabled>
+                                    装備中
+                                </button>
+                            `
+                            :`
+                                <button class="equipped-btn" onclick="equippedSkills('${skill.id}')">
+                                    装備
+                                </button>
+                            `
+                        }
+                        
+                    </div>
+                `;
+            });
+        }
+
+        window.equippedSkills = async function(skillId) {
+
+            equippedSkill = [skillId];
+
+            await saveProgress();
+
+            loadInventory();
+
+            const skill = skills.find(s => s.id === skillId);
+
+            alert(skill.name + "を装備しました！");
         }
 
     </script>
