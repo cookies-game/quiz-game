@@ -1486,10 +1486,10 @@
         function createuserID() {
             return "user_" + Math.random().toString(36).substring(2, 10);
         }
-        let userID = localStorage.getItem("userID");
+        let userID = localStorage.getItem("quizgame_userID");
         if (!userID) {
             userID = createuserID();
-            localStorage.setItem("userID", userID);
+            localStorage.setItem("quizgame_userID", userID);
         }
 
         let userName = localStorage.getItem("userName");
