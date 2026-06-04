@@ -11,6 +11,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            user-select: none;
         }
 
         /* ===== ライトモード（デフォルト） ===== */
@@ -29,8 +30,8 @@
         .title {
             font-size: 70px;
             position: absolute;
-            top: 32%;
-            left: 50%;
+            top: 15%;
+            left: 14%;
             transform: translate(-50%, -50%);
             color: black;
             text-shadow: 3px 3px 10px rgb(30, 30, 30);
@@ -38,7 +39,7 @@
 
         .buttons {
             position: absolute;
-            top: 55%;
+            top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             display: flex;
@@ -75,6 +76,22 @@
         }
 
         .shop-btn:hover {
+            box-shadow: none;
+            transform: translateY(-3px);
+        }
+
+        .gacha-btn {
+            font-size: 30px;
+            padding: 13px 40px;
+            background: white;
+            border: 2px solid black;
+            box-shadow: 5px 5px 15px black;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .gacha-btn:hover {
             box-shadow: none;
             transform: translateY(-3px);
         }
@@ -206,6 +223,163 @@
             box-shadow: none;
         }
 
+        #gacha-select-screen {
+            width: 100%;
+            height: 100vh;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .gacha-select-box {
+            background: white;
+            border: 2px solid black;
+            border-radius: 30px;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 5px 5px 15px black;
+        }
+
+        .gacha-title {
+            font-size: 40px;
+        }
+
+        .gacha-description {
+            font-size: 20px;
+        }
+
+        .gacha-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .currency-gacha,
+        .skill-gacha {
+            font-size: 24px;
+            padding: 15px 40px;
+            background: white;
+            border: 2px solid black;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+            transform: scale(1);
+        }
+
+        .currency-gacha:hover,
+        .skill-gacha:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgb(45, 45, 45);
+        }
+
+        .currency-gacha:active,
+        .skill-gacha:active {
+            transform: scale(1);
+            box-shadow: none;
+        }
+
+        .home-btn4 {
+            font-size: 18px;
+            padding: 10px 20px;
+            width: 160px;
+            background: white;
+            border: 1px solid black;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .home-btn4:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgb(45, 45, 45);
+        }
+
+        .home-btn4:active {
+            transform: scale(1);
+            box-shadow: none;
+        }
+
+        #currency-gacha-screen,
+        #skill-gacha-screen {
+            width: 100%;
+            height: 100vh;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .gacha-box {
+            width: 383px;
+            background: white;
+            border: 2px solid black;
+            border-radius: 30px;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 5px 5px 15px black;
+        }
+
+        .currency-gacha-title,
+        .skill-gacha-title {
+            font-size: 35px;
+        }
+
+        .draw-btn {
+            font-size: 24px;
+            padding: 15px 30px;
+            background: white;
+            border: 2px solid black;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .draw-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgb(45, 45, 45);
+        }
+
+        .draw-btn:active {
+            transform: scale(1);
+            box-shadow: none;
+        }
+
+        .draw-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .draw-btn:disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .home-btn5 {
+            font-size: 18px;
+            padding: 10px 20px;
+            width: 160px;
+            background: white;
+            border: 1px solid black;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .home-btn5:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgb(45, 45, 45);
+        }
+
+        .home-btn5:active {
+            transform: scale(1);
+            box-shadow: none;
+        }
+
         .inventory-box {
             width: 550px;
             height: 75vh;
@@ -292,7 +466,7 @@
             color: white;
             background: rgb(255, 50, 50);
         }
-        
+
         .tabs {
             display: flex;
             gap: 10px;
@@ -390,6 +564,7 @@
             box-shadow: 5px 5px 15px rgb(45, 45, 45);
             z-index: 9999;
             position: relative;
+            overflow: hidden;
         }
 
         .setting-title {
@@ -478,26 +653,24 @@
         }
 
         .home-btn3 {
-            width: 430px;
-            padding: 7px;
-            position: fixed;
-            bottom: 10%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(1);
-            background: white;
-            border: 1px solid black;
-            border-radius: 15px;
-            font-size: 20px;
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 60px;
+            height: 60px;
+            border: none;
+            background: transparent;
             cursor: pointer;
+            font-size: 35px;
             transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .home-btn3:hover {
-            transform: translate(-50%, -50%) scale(1.1);
-        }
-
-        .home-btn3:active {
-            transform: translate(-50%, -50%) scale(1);
+            color: white;
+            background: rgb(255, 50, 50);
         }
 
         #inventory-screen {
@@ -737,6 +910,7 @@
 
         .choice-btn:disabled:hover {
             transform: none;
+            box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.2);
         }
 
         #result-screen {
@@ -1035,6 +1209,9 @@
         body.dark .skill-card,
         body.dark .inventory-box,
         body.dark .inventory-skill,
+        body.dark .gacha-select-box,
+        body.dark .gacha-box,
+        body.dark .gacha-animation,
         body.dark {
             background: rgb(30, 30, 30);
             color: white;
@@ -1051,12 +1228,17 @@
         body.dark .restart-btn2,
         body.dark .home-btn2,
         body.dark .save-btn,
-        body.dark .home-btn3,
         body.dark .subj,
         body.dark .name-input,
         body.dark .theme-select-btn,
         body.dark .buy-btn,
         body.dark .equipped-btn,
+        body.dark .currency-gacha,
+        body.dark .skill-gacha,
+        body.dark .home-btn4,
+        body.dark .gacha-btn,
+        body.dark .draw-btn,
+        body.dark .home-btn5,
         body.dark .save-btn2 {
             background: rgb(45, 45, 45);
             color: white;
@@ -1075,12 +1257,19 @@
         body.dark .shop-btn,
         body.dark .home-btn,
         body.dark .home-btn2,
-        body.dark .home-btn3,
         body.dark .shop-box,
         body.dark .skill-card,
         body.dark .inventory-box,
         body.dark .inventory-skill,
         body.dark .buy-btn,
+        body.dark .currency-gacha,
+        body.dark .skill-gacha,
+        body.dark .gacha-btn,
+        body.dark .home-btn4,
+        body.dark .gacha-box,
+        body.dark .gacha-animation,
+        body.dark .draw-btn,
+        body.dark .home-btn5,
         body.dark .subj {
             box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5);
         }
@@ -1092,11 +1281,16 @@
         body.dark .restart-btn2:hover,
         body.dark .home-btn2:hover,
         body.dark .save-btn:hover,
-        body.dark .home-btn3:hover,
         body.dark .choice-btn:hover,
         body.dark .save-btn2:hover,
         body.dark .shop-btn:hover,
         body.dark .equipped-btn:hover,
+        body.dark .gacha-btn:hover,
+        body.dark .currency-gacha:hover,
+        body.dark .skill-gacha:hover,
+        body.dark .home-btn4:hover,
+        body.dark .draw-btn:hover,
+        body.dark .home-btn5:hover,
         body.dark .buy-btn:hover {
             border-color: var(--hover-color);
             box-shadow: 0 0 12px var(--hover-color);
@@ -1114,7 +1308,7 @@
         body.dark .choice-btn:disabled:hover {
             transform: none;
             border: 2px solid rgb(45, 45, 45);
-            box-shadow: none;
+            box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.2);
         }
 
         body.dark .skills::-webkit-scrollbar-track {
@@ -1152,6 +1346,10 @@
             color: white;
         }
 
+        body.dark .home-btn3 {
+            color: white;
+        }
+
         body.dark .equipped-btn:disabled {
             background: #707070;
             border: 2px solid #707070;
@@ -1163,6 +1361,11 @@
 
         body.dark .close-btn2 {
             color: white;
+        }
+
+        body.dark .draw-btn:disabled:hover {
+            box-shadow: none;
+            border: 2px solid rgb(45, 45, 45);
         }
 
     </style>
@@ -1227,7 +1430,7 @@
 
 
     <p class="version">
-        ver.2.3.0
+        ver.2.3.1
     </p>
 
     <div id="home-screen" class="screen active">
@@ -1244,6 +1447,10 @@
 
             <button class="shop-btn" onclick="openshop()">
                 ショップ
+            </button>
+
+            <button class="gacha-btn" onclick="app.showScreen('gacha-select-screen')">
+                ガチャ
             </button>
 
         </div>
@@ -1354,13 +1561,85 @@
             </div>
 
             <div class="skills"></div>
-            
+
             <button class="close-btn">
                 ✘
             </button>
 
         </div>
 
+
+    </div>
+
+    <div id="gacha-select-screen" class="screen">
+
+        <div class="gacha-select-box">
+
+            <h2 class="gacha-title">
+                ガチャ🎰
+            </h2>
+
+            <p class="gacha-description">
+                ガチャの種類を選択してください
+            </p>
+
+            <div class="gacha-list">
+
+                <button class="currency-gacha" onclick="app.showScreen('currency-gacha-screen')">
+                    通貨ガチャ💰
+                </button>
+
+                <button class="skill-gacha" onclick="app.showScreen('skill-gacha-screen')">
+                    スキルガチャ✨
+                </button>
+
+            </div>
+
+            <button class="home-btn4" onclick="app.showScreen('home-screen')">
+                戻る
+            </button>
+
+        </div>
+
+    </div>
+
+    <div id="currency-gacha-screen" class="screen">
+
+        <div class="gacha-box">
+
+            <h2 class="currency-gacha-title">
+                通貨ガチャ💰
+            </h2>
+
+            <button class="draw-btn" onclick="currencyGacha()">
+                引く（⚡ 10）
+            </button>
+
+            <button class="home-btn5" onclick="app.showScreen('home-screen')">
+                戻る
+            </button>
+
+        </div>
+
+    </div>
+
+    <div id="skill-gacha-screen" class="screen">
+
+        <div class="gacha-box">
+
+            <h2 class="skill-gacha-title">
+                スキルガチャ✨
+            </h2>
+
+            <button class="draw-btn" onclick="skillGacha()">
+                引く（⚡ 100）
+            </button>
+
+            <button class="home-btn5" onclick="app.showScreen('home-screen')">
+                戻る
+            </button>
+
+        </div>
 
     </div>
 
@@ -1387,7 +1666,9 @@
     </div>
 
     <div id="setting-screen" class="screen">
+
         <div class="setting-box">
+
             <h2 class="setting-title">
                 設定🛠️
             </h2>
@@ -1403,22 +1684,29 @@
             </button>
 
             <div class="theme-select">
+
                 <p class="theme-description">
                     テーマを変更
                 </p>
+
                 <select class="theme-select-btn">
                     <option value="light">ライトモードにする（デフォルト）</option>
+
                     <option value="dark">ダークモードにする</option>
                 </select>
+
                 <button class="save-btn2">
                     適応させる
                 </button>
+
             </div>
 
             <button class="home-btn3" onclick="closeSetting()">
-                戻る
+                ✘
             </button>
+
         </div>
+
     </div>
 
     <div id="loading-screen">
@@ -1461,7 +1749,6 @@
 
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-analytics.js";
         import {
             getFirestore,
             doc,
@@ -1496,6 +1783,7 @@
         if (!userName) {
             const defaultName = ["Guest666", "c00lkid", "1x1x1x1", "John doe", "Jane doe"];
             userName = defaultName[Math.floor(Math.random() * defaultName.length)];
+            localStorage.setItem("userName", userName);
         }
 
         async function createUserDataIfFirstTime() {
@@ -1553,6 +1841,32 @@
         const savebtn = document.querySelector(".save-btn");
         const themeSelect = document.querySelector(".theme-select-btn");
         const savebtn2 = document.querySelector(".save-btn2");
+
+        const correctSound = new Audio("sounds/correct.mp3");
+        correctSound.volume = 1.0;
+        correctSound.playbackRate = 1.0;
+        correctSound.load();
+        const wrongSound = new Audio("sounds/wrong.mp3");
+        wrongSound.volume = 1.0;
+        wrongSound.playbackRate = 1.5;
+        const gachaSound = new Audio("sounds/gacha.mp3");
+        gachaSound.volume = 1.0;
+        gachaSound.playbackRate = 1.0;
+        const stopSound1 = new Audio("sounds/stop1.mp3");
+        stopSound1.volume = 1.0;
+        stopSound1.playbackRate = 1.0;
+        const stopSound2 = new Audio("sounds/stop2.mp3");
+        stopSound2.volume = 1.0;
+        stopSound2.playbackRate = 1.0;
+        const rareSound = new Audio("sounds/rare.mp3");
+        rareSound.volume = 1.0;
+        rareSound.playbackRate = 1.0;
+        correctSound.load();
+        wrongSound.load();
+        gachaSound.load();
+        stopSound1.load();
+        stopSound2.load();
+        rareSound.load();
 
         window.onload = async () => {
 
@@ -1928,25 +2242,185 @@
 
         const skills = [
             {
-                id: "expboost",
-                name: "expブースト",
+                id: "expboost1",
+                name: "expブーストα",
                 description: "獲得expが2倍になる",
                 price: 100,
                 currency: "coin"
             },
             {
-                id: "coinboost",
-                name: "coinブースト",
+                id: "coinboost1",
+                name: "coinブーストα",
                 description: "獲得coinが2倍になる",
                 price: 150,
                 currency: "coin"
             },
             {
-                id: "gemboost",
-                name: "gemブースト",
+                id: "gemboost1",
+                name: "gemブーストα",
                 description: "gem獲得確率が2倍になる",
                 price: 500,
                 currency: "coin"
+            },
+            {
+                id: "pointboost1",
+                name: "pointブーストα",
+                description: "獲得pointが2倍になる",
+                price: 500,
+                currency: "coin"
+            }
+        ]
+
+        const currencyGachaCost = 10;
+
+        const currencyGachaItems = [
+            {
+                name: "🪙 100",
+                type: "coin",
+                amount: 100,
+                chance: 60
+            },
+            {
+                name: "💎 1",
+                type: "gem",
+                amount: 1,
+                chance: 25
+            },
+            {
+                name: "⚡ 15",
+                type: "point",
+                amount: 15,
+                chance: 14.9
+            },
+            {
+                name: "🎫 1",
+                type: "ticket",
+                amount: 1,
+                chance: 0.1
+            }
+        ]
+
+        const skillGachaCost = 100;
+
+        const rarityList = {
+            Common: 50,
+            Rare: 30,
+            Epic: 10,
+            Legendary: 5,
+            Mythic: 3,
+            Divine: 1.3,
+            Secret: 0.6,
+            OG: 0.1
+        }
+
+        const skillGachaItems = [
+            {
+                id: "expboost2",
+                name: "expブーストβ",
+                description: "獲得expが3倍になる",
+                rarity: "Common"
+            },
+            {
+                id: "coinboost2",
+                name: "coinブーストβ",
+                description: "獲得coinが3倍になる",
+                rarity: "Common"
+            },
+            {
+                id: "gemboost2",
+                name: "gemブーストβ",
+                description: "gem獲得確率が3倍になる",
+                rarity: "Common"
+            },
+            {
+                id: "pointboost2",
+                name: "pointブーストβ",
+                description: "獲得pointが3倍になる",
+                rarity: "Common"
+            },
+            {
+                id: "completebonus",
+                name: "コンプリート棒ナス",
+                description: "全問正解したときにcoin,gem,pointのどれかが2倍になる",
+                rarity: "Rare"
+            },
+            {
+                id: "concentrate",
+                name: "集中",
+                description: "ゲーム時間が40秒になる",
+                rarity: "Rare"
+            },
+            {
+                id: "advice",
+                name: "アドバイス",
+                description: "一問だけヒントを表示できる",
+                rarity: "Epic"
+            },
+            {
+                id: "escape",
+                name: "現実逃避",
+                description: "一度だけ不正解にならない",
+                rarity: "Epic"
+            },
+            {
+                id: "timecontrol",
+                name: "時空支配",
+                description: "ゲーム時間が50秒になる",
+                rarity: "Legendary"
+            },
+            {
+                id: "analysis",
+                name: "解析",
+                description: "1回だけ選択肢を3つにする",
+                rarity: "Legendary"
+            },
+            {
+                id: "unrivaled",
+                name: "無双",
+                description: "5連続で正解したらその瞬間にcoinが500増える",
+                rarity: "Mythic"
+            },
+            {
+                id: "almighty",
+                name: "全知全能",
+                description: "1問だけ全部の選択肢を正解にする",
+                rarity: "Mythic"
+            },
+            {
+                id: "wisdom",
+                name: "叡智（H）",
+                description: "2回だけ選択肢を2つにする",
+                rarity: "Divine"
+            },
+            {
+                id: "cheat",
+                name: "チート",
+                description: "2回まで答えを表示できる",
+                rarity: "Divine"
+            },
+            {
+                id: "timetraveler",
+                name: "未来人",
+                description: "不正解を3回まで防ぐ",
+                rarity: "Secret"
+            },
+            {
+                id: "creation",
+                name: "創作の神",
+                description: "獲得coin,gem,pointがランダムで5倍になる",
+                rarity: "Secret"
+            },
+            {
+                id: "c00lkidd",
+                name: "c00lkidd",
+                description: "",
+                rarity: "OG"
+            },
+            {
+                id: "admin",
+                name: "管理者",
+                description: "獲得exp,coin,gem,pointが10倍になる<br>時間を操れる<br>選択肢の数を操れる",
+                rarity: "OG"
             }
         ]
 
@@ -1974,26 +2448,28 @@
                         </p>
 
                         ${ownedSkills.includes(skill.id)
-                            ?`
+                        ? `
                                 <button class="buy-btn" disabled>
                                     購入済み
                                 </button>
                             `
-                            :`
+                        : `
                                 <button class="buy-btn" onclick="buySkill('${skill.id}')">
                                     購入
                                 </button>
                             `
-                        }
+                    }
                         
                     </div>
                 `;
             });
         }
 
-        window.buySkill = async function(skillId) {
+        window.buySkill = async function (skillId) {
 
-            const skill = skills.find(s => s.id === skillId);
+            const allSkills = [...skills, ...skillGachaItems];
+
+            const skill = allSkills.find(s => s.id === skillId);
 
             if (!skill) return;
 
@@ -2022,7 +2498,7 @@
 
         const shopscreen = document.getElementById("shop-screen");
 
-        window.openshop = function() {
+        window.openshop = function () {
 
             shopscreen.classList.add("active");
 
@@ -2030,7 +2506,7 @@
 
         }
 
-        document.querySelector(".close-btn").onclick = function() {
+        document.querySelector(".close-btn").onclick = function () {
 
             shopscreen.classList.remove("active");
 
@@ -2073,7 +2549,7 @@
         let getticket = 0;
 
         let ownedSkills = [];
-        let equippedSkill = [];
+        let equippedSkill = "";
 
         function addCurrency(type, amount) {
 
@@ -2166,6 +2642,9 @@
 
                         message.textContent = "正解！！"
 
+                        correctSound.currentTime = 0;
+                        correctSound.play();
+
                         message.classList.remove("wrong");
                         message.classList.add("correct");
 
@@ -2173,32 +2652,40 @@
 
                         let expAmount = 10;
                         let coinAmount = 10;
+                        let pointAmount = 1;
 
                         // expブースト
-                        if (equippedSkill.includes("expboost")) {
+                        if (equippedSkill === "expboost1") {
                             expAmount *= 2
                         }
 
                         // coinブースト
-                        if (equippedSkill.includes("coinboost")) {
+                        if (equippedSkill === "coinboost1") {
                             coinAmount *= 2
+                        }
+
+                        // pointブースト
+                        if (equippedSkill === "pointboost1") {
+                            pointAmount *= 2;
                         }
 
                         getexp += expAmount;
 
                         getcoin += coinAmount;
 
+                        getpoint += pointAmount;
+
                         let gemChance = 0.01;
 
                         // gemブースト
-                        if (equippedSkill.includes("gemboost")) {
+                        if (equippedSkill === "gemboost1") {
                             gemChance *= 2;
                         }
 
                         message2.textContent = "";
 
                         if (Math.random() < gemChance) {
-                            
+
                             getgem += 1;
 
                             message2.textContent = "💎ゲット！ 強運だね！"
@@ -2209,6 +2696,9 @@
                     } else {
 
                         message.textContent = "不正解……"
+
+                        wrongSound.currentTime = 0;
+                        wrongSound.play();
 
                         message.classList.remove("correct");
                         message.classList.add("wrong");
@@ -2235,6 +2725,8 @@
                             addCurrency("coin", getcoin);
 
                             addCurrency("gem", getgem);
+
+                            addCurrency("point", getpoint);
 
                             updateLevelUI();
 
@@ -2271,6 +2763,8 @@
                     addCurrency("coin", getcoin);
 
                     addCurrency("gem", getgem);
+
+                    addCurrency("point", getpoint);
 
                     updateLevelUI();
 
@@ -2333,18 +2827,18 @@
 
         window.inventoryscreen = document.getElementById("inventory-screen");
 
-        window.openInventory = function() {
+        window.openInventory = function () {
 
             inventoryscreen.classList.add("active");
 
             const container = document.querySelector(".skills-container");
 
-            container.innerHTML
+            container.innerHTML = "";
 
             loadInventory();
         }
 
-        window.closeInventory = function() {
+        window.closeInventory = function () {
 
             inventoryscreen.classList.remove("active");
         }
@@ -2444,17 +2938,21 @@
         }
 
         async function saveProgress() {
-            await setDoc(doc(db, "users", userID), {
-                level,
-                exp,
-                maxexp,
-                coin,
-                gem,
-                point,
-                ticket,
-                ownedSkills,
-                equippedSkill
-            }, { merge: true });
+            try {
+                await setDoc(doc(db, "users", userID), {
+                    level,
+                    exp,
+                    maxexp,
+                    coin,
+                    gem,
+                    point,
+                    ticket,
+                    ownedSkills,
+                    equippedSkill
+                }, { merge: true });
+            } catch (error) {
+                console.error("保存失敗", error);
+            }
         }
 
         function addExp(amount) {
@@ -2491,7 +2989,7 @@
 
             // ショップ側
             document.querySelector(".shop-coin-text").textContent = coin;
-            
+
             document.querySelector(".shop-gem-text").textContent = gem;
         }
 
@@ -2539,7 +3037,9 @@
 
             ownedSkills.forEach(skillId => {
 
-                const skill = skills.find(s => s.id === skillId);
+                const allSkills = [...skills, ...skillGachaItems];
+
+                const skill = allSkills.find(s => s.id === skillId);
 
                 if (!skill) return;
 
@@ -2554,37 +3054,125 @@
                             ${skill.description}
                         </p>
 
-                        ${
-                            equippedSkill.includes(skill.id)
-                            ?`
+                        ${equippedSkill === skill.id
+                        ? `
                                 <button class="equipped-btn" disabled>
                                     装備中
                                 </button>
                             `
-                            :`
+                        : `
                                 <button class="equipped-btn" onclick="equippedSkills('${skill.id}')">
                                     装備
                                 </button>
                             `
-                        }
+                    }
                         
                     </div>
                 `;
             });
         }
 
-        window.equippedSkills = async function(skillId) {
+        window.equippedSkills = async function (skillId) {
 
-            equippedSkill = [skillId];
+            equippedSkill = skillId;
 
             await saveProgress();
 
             loadInventory();
 
-            const skill = skills.find(s => s.id === skillId);
+            const allSkills = [...skills, ...skillGachaItems];
+
+            const skill = allSkills.find(s => s.id === skillId);
 
             alert(skill.name + "を装備しました！");
         }
+
+        window.currencyGacha = async function () {
+
+            const btn = document.querySelector("#currency-gacha-screen .draw-btn");
+            btn.disabled = true;
+
+            try {
+
+                if (point < currencyGachaCost) {
+                    alert("pointが足りません");
+                    return;
+                }
+
+                point -= currencyGachaCost;
+
+                const rand = Math.random() * 100;
+
+                let total = 0;
+                let reward = null;
+
+                for (const currency of currencyGachaItems) {
+
+                    total += currency.chance;
+
+                    if (rand <= total) {
+                        reward = currency;
+                        break;
+                    }
+                }
+
+                if (!reward) return;
+
+                addCurrency(reward.type, reward.amount);
+
+                await saveProgress();
+
+                alert(`${reward.name} を獲得！`);
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        window.skillGacha = async function () {
+
+            const btn = document.querySelector("#skill-gacha-screen .draw-btn");
+            btn.disabled = true;
+
+            try {
+
+                if (point < skillGachaCost) {
+                    alert("pointが足りません");
+                    return;
+                }
+
+                point -= skillGachaCost;
+                updatecurrencyUI();
+
+                let totalChance = 0;
+                for (const skill of skillGachaItems) {
+                    totalChance += rarityList[skill.rarity];
+                }
+
+                const rand = Math.random() * totalChance;
+                let total = 0;
+                let reward = null;
+
+                for (const skill of skillGachaItems) {
+                    total += rarityList[skill.rarity];
+                    if (rand <= total) {
+                        reward = skill;
+                        break;
+                    }
+                }
+                if (!reward) return;
+
+                if (!ownedSkills.includes(reward.id)) {
+                    ownedSkills.push(reward.id);
+                }
+
+                await saveProgress();
+
+                alert(`${reward.name}\nレア度： ${reward.rarity}\n${reward.description}`);
+
+            } finally {
+                btn.disabled = false;
+            }
+        };
 
     </script>
 </body>
