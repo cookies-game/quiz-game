@@ -27,16 +27,6 @@
             display: flex;
         }
 
-        .title {
-            font-size: 70px;
-            position: absolute;
-            top: 15%;
-            left: 14%;
-            transform: translate(-50%, -50%);
-            color: black;
-            text-shadow: 3px 3px 10px rgb(30, 30, 30);
-        }
-
         .buttons {
             position: absolute;
             top: 50%;
@@ -1316,48 +1306,6 @@
             color: white;
         }
 
-        #fullscreen-screen {
-            position: fixed;
-            inset: 0;
-            background: white;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-        }
-
-        #fullscreen-screen.active {
-            display: flex;
-        }
-
-        .fullscreen-box {
-            background: white;
-            padding: 40px;
-            border-radius: 25px;
-            text-align: center;
-        }
-
-        .fullscreen-text {
-            font-size: 28px;
-            margin-bottom: 20px;
-        }
-
-        .fullscreen-btn {
-            font-size: 22px;
-            padding: 12px 25px;
-            border: none;
-            border-radius: 15px;
-            cursor: pointer;
-        }
-
-        .cancel-btn {
-            font-size: 22px;
-            padding: 12px 25px;
-            border: none;
-            border-radius: 15px;
-            cursor: pointer;
-        }
-
         /* ===== ダークモード ===== */
         :root {
             --hover-color: rgb(115, 215, 255);
@@ -1476,10 +1424,6 @@
 
         body.dark .tab {
             color: white;
-        }
-
-        body.dark .fullscreen-text {
-            color: black;
         }
 
         body.dark .choice-btn:disabled {
@@ -1628,10 +1572,6 @@
     </p>
 
     <div id="home-screen" class="screen active">
-
-        <h1 class="title">
-            Quiz Game
-        </h1>
 
         <button class="admin-btn" onclick="openAdminPanel()" style="display: none;">
             管理
@@ -1975,25 +1915,17 @@
 
     </div>
 
-    <div id="fullscreen-screen">
+    <div class="adminPanel">
 
-        <div class="fullscreen-box">
+        <button class="show-users-btn" onclick="showUsers()">
+            ユーザー一覧
+        </button>
 
-            <p class="fullscreen-text">
-                このゲームは<br>
-                全画面でプレイすることを<br>
-                推奨します。
-            </p>
+    </div>
 
-            <button class="fullscreen-btn" onclick="enterFullScreen()">
-                全画面にする
-            </button>
+    <div class="users" style="display: none;">
 
-            <button class="cancel-btn">
-                キャンセル
-            </button>
-
-        </div>
+        <div class="user-list"></div>
 
     </div>
 
@@ -2005,7 +1937,9 @@
             getFirestore,
             doc,
             setDoc,
-            getDoc
+            getDoc,
+            getDocs,
+            collection
         } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
         // TODO: Add SDKs for Firebase products that you want to use
         // https://firebase.google.com/docs/web/setup#available-libraries
@@ -2130,55 +2064,49 @@
                 document.querySelector(".admin-confirmation").style.display = "flex";
             }
 
-                loadingscreen.style.opacity = "0";
+            loadingscreen.style.opacity = "0";
 
-                setTimeout(() => {
+            setTimeout(() => {
 
-                    loadingscreen.style.display = "none";
+                loadingscreen.style.display = "none";
+            }, 500);
+        };
 
-                    setTimeout(() => {
+        const tabs = document.querySelectorAll(".tab");
 
-                        checkFullscreenOverlay();
+        tabs.forEach((tab, index) => {
 
-                    }, 500);
-                }, 500);
+            tab.onclick = () => {
+
+                tabs.forEach(t => t.classList.remove("active"));
+
+                tab.classList.add("active");
+
+                if (index === 0) {
+                    loadInventory();
+                } else if (index === 1) {
+                    loadPassiveInventory();
+                }
             };
+        });
 
-            const tabs = document.querySelectorAll(".tab");
+        function loadPassiveInventory() {
 
-            tabs.forEach((tab, index) => {
+            const container = document.querySelector(".skills-container");
 
-                tab.onclick = () => {
+            container.innerHTML = "";
 
-                    tabs.forEach(t => t.classList.remove("active"));
+            const PassiveSkills = ["c00lkidd"];
 
-                    tab.classList.add("active");
+            PassiveSkills.forEach(skillId => {
 
-                    if (index === 0) {
-                        loadInventory();
-                    } else if (index === 1) {
-                        loadPassiveInventory();
-                    }
-                };
-            });
+                if (!ownedSkills.includes(skillId)) return;
 
-            function loadPassiveInventory() {
+                const skill = skillGachaItems.find(s => s.id === skillId);
 
-                const container = document.querySelector(".skills-container");
+                if (!skill) return;
 
-                container.innerHTML = "";
-
-                const PassiveSkills = ["c00lkidd"];
-
-                PassiveSkills.forEach(skillId => {
-
-                    if (!ownedSkills.includes(skillId)) return;
-
-                    const skill = skillGachaItems.find(s => s.id === skillId);
-
-                    if (!skill) return;
-
-                    container.innerHTML += `
+                container.innerHTML += `
                     <div class="inventory-skill">
                         <h3 class="passive-skill-name">${skill.name}</h3>
                         <p class="passive-skill-description">${skill.description}</p>
@@ -2187,539 +2115,519 @@
                         </button>
                     </div>
                 `;
-                });
-            }
+            });
+        }
 
-            function isChromebook() {
-
-                const ua = navigator.userAgent.toLowerCase();
-
-                return ua.includes("cros");
-            }
-
-            function checkFullscreenOverlay() {
-
-                // Chromebook以外は出さない
-                if (!isChromebook()) return;
-
-                // すでに全画面なら出さない
-                if (isFullScreen()) return;
-
-                document
-                    .getElementById("fullscreen-screen")
-                    .classList.add("active");
-            }
-
-            const quizData = {
-                japanese: [
-                    {
-                        question: "「石の上にも三年」の意味は？",
-                        choices: [
-                            "すぐにあきらめる",
-                            "我慢して続けるといいことがある",
-                            "石を三年間積み上げる",
-                            "早く行動する"
-                        ],
-                        answer: "我慢して続けるといいことがある"
-                    },
-                    {
-                        question: "「二兎を追う者は一兎をも得ず」の意味は？",
-                        choices: [
-                            "二つのことを同時に頑張る",
-                            "欲張るとどちらもうまくいかない",
-                            "ウサギを二匹捕まえる",
-                            "1つはあきらめないといけない"
-                        ],
-                        answer: "欲張るとどちらもうまくいかない"
-                    },
-                    {
-                        question: "「急がば回れ」の意味は？",
-                        choices: [
-                            "遠回りは無駄である",
-                            "急いでる時こそ遠回りをした方がいい",
-                            "回ると早く着く",
-                            "急いでるときは走ったほうがいい"
-                        ],
-                        answer: "急いでる時こそ遠回りをした方がいい"
-                    },
-                    {
-                        question: "「七転び八起き」の意味は？",
-                        choices: [
-                            "七回転んだらそこで試合終了",
-                            "七回転んで八回起きればいいことがある",
-                            "何度失敗してもあきらめずに立ち上がる",
-                            "七回転んだら八回起き上がらねばならない"
-                        ],
-                        answer: "何度失敗してもあきらめずに立ち上がる"
-                    },
-                    {
-                        question: "「井の中の蛙大海を知らず」の意味は？",
-                        choices: [
-                            "井戸の中の蛙は泳ぎが得意",
-                            "狭い範囲しか知らない人は広い世界を知らない",
-                            "大海はとても浅い",
-                            "井戸の中にはカエルがいる"
-                        ],
-                        answer: "狭い範囲しか知らない人は広い世界を知らない"
-                    },
-                    {
-                        question: "「雨降って地固まる」の意味は？",
-                        choices: [
-                            "雨が降ると地面が固まる",
-                            "人とトラブルがあった後は仲が深まる",
-                            "悲しいことがあった後は強くなる",
-                            "雨の日は地盤が緩くなる"
-                        ],
-                        answer: "人とトラブルがあった後は仲が深まる"
-                    },
-                    {
-                        question: "「唯一」の読み方は？",
-                        choices: [
-                            "ゆういつ",
-                            "ゆいつ",
-                            "ゆいいつ",
-                            "ゆういち"
-                        ],
-                        answer: "ゆいいつ"
-                    },
-                    {
-                        question: "「慎重」の読み方は？",
-                        choices: [
-                            "ちんじゅう",
-                            "しんちゅう",
-                            "しんちょう",
-                            "しんおも"
-                        ],
-                        answer: "しんちょう"
-                    },
-                    {
-                        question: "「逐一」の読み方は？",
-                        choices: [
-                            "とんいつ",
-                            "とんいち",
-                            "ちくいち",
-                            "ちくいつ"
-                        ],
-                        answer: "ちくいち"
-                    },
-                    {
-                        question: "「魅力」の読み方は？",
-                        choices: [
-                            "みりょう",
-                            "みりょく",
-                            "みぢから",
-                            "みちから"
-                        ],
-                        answer: "みりょく"
-                    },
-                    {
-                        question: "「魑魅魍魎」の読み方は？",
-                        choices: [
-                            "りみりょうもう",
-                            "ちりもうみょう",
-                            "ちみもうりょう",
-                            "みみみみ"
-                        ],
-                        answer: "ちみもうりょう"
-                    },
-                    {
-                        question: "「目から鱗が落ちる」の意味は？",
-                        choices: [
-                            "急に理解する",
-                            "驚いて黙る",
-                            "目から鱗が落ちるように痛い",
-                            "興味がわく"
-                        ],
-                        answer: "急に理解する"
-                    },
-                    {
-                        question: "「頭が上がらない」の意味は？",
-                        choices: [
-                            "プライドが高い",
-                            "尊敬して逆らえない",
-                            "頭脳がいい",
-                            "病気"
-                        ],
-                        answer: "尊敬して逆らえない"
-                    },
-                    {
-                        question: "「腕が鳴る」の意味は？",
-                        choices: [
-                            "骨が折れる",
-                            "自信があってやる気が出る",
-                            "楽しみで仕方がない",
-                            "腕時計が鳴る"
-                        ],
-                        answer: "自信があってやる気が出る"
-                    },
-                    {
-                        question: "「腹に据えかねる」の意味は？",
-                        choices: [
-                            "おなかが尋常じゃなく痛い",
-                            "我慢できないほど腹が立つ",
-                            "いくら食べてもおなかがいっぱいにならない",
-                            "何をしても楽しくない"
-                        ],
-                        answer: "我慢できないほど腹が立つ"
-                    },
-                    {
-                        question: "「先生が来る」の尊敬語は？",
-                        choices: [
-                            "先生がいらっしゃる",
-                            "先生がいらっしゅる",
-                            "先生が参る",
-                            "先生が来ます"
-                        ],
-                        answer: "先生がいらっしゃる"
-                    },
-                    {
-                        question: "「見る」の尊敬語は？",
-                        choices: [
-                            "ご覧になる",
-                            "見られる",
-                            "お見えになる",
-                            "ご覧する"
-                        ],
-                        answer: "ご覧になる"
-                    },
-                    {
-                        question: "「食べる」の尊敬語は？",
-                        choices: [
-                            "お食べになる",
-                            "食べます",
-                            "食べられる",
-                            "召し上がる"
-                        ],
-                        answer: "召し上がる"
-                    },
-                    {
-                        question: "「社長に会う」の尊敬語は？",
-                        choices: [
-                            "社長に会われる",
-                            "社長にお会いする",
-                            "社長にお会いになろ",
-                            "社長にお会いになる"
-                        ],
-                        answer: "社長にお会いになる"
-                    },
-                    {
-                        question: "「行く」の謙譲語は？",
-                        choices: [
-                            "行かせていただく",
-                            "いらっしゃる",
-                            "行きます",
-                            "参る"
-                        ],
-                        answer: "参る"
-                    },
-                    {
-                        question: "「聞く」の謙譲語は？",
-                        choices: [
-                            "お聞きになる",
-                            "聞きます",
-                            "聞かせる",
-                            "伺う"
-                        ],
-                        answer: "伺う"
-                    }
-                ],
-                math: [
-                    {
-                        question: "長方形の縦が2㎝、横が15㎝のとき、面積は何㎝²？",
-                        choices: [
-                            "30㎝²",
-                            "25㎝²",
-                            "26㎝²",
-                            "17㎝²"
-                        ],
-                        answer: "30㎝²"
-                    },
-                    {
-                        question: "1辺が6㎝の正三角形の周りの長さは何㎝？",
-                        choices: [
-                            "24㎝",
-                            "16㎝",
-                            "13㎝",
-                            "18㎝"
-                        ],
-                        answer: "18㎝"
-                    },
-                    {
-                        question: "8 × 7 は？",
-                        choices: [
-                            "54",
-                            "56",
-                            "64",
-                            "48"
-                        ],
-                        answer: "56"
-                    },
-                    {
-                        question: "72 ÷ 9 は？",
-                        choices: [
-                            "6",
-                            "8",
-                            "9",
-                            "7"
-                        ],
-                        answer: "8"
-                    },
-                    {
-                        question: "15 + 28 は？",
-                        choices: [
-                            "33",
-                            "43",
-                            "53",
-                            "42"
-                        ],
-                        answer: "43"
-                    },
-                    {
-                        question: "50 - 17 は？",
-                        choices: [
-                            "23",
-                            "43",
-                            "33",
-                            "27"
-                        ],
-                        answer: "33"
-                    },
-                    {
-                        question: "1時間は何分？",
-                        choices: [
-                            "100分",
-                            "30分",
-                            "60分",
-                            "90分"
-                        ],
-                        answer: "60分"
-                    },
-                    {
-                        question: "半径5㎝の円の直径は？",
-                        choices: [
-                            "5㎝",
-                            "10㎝",
-                            "15㎝",
-                            "20㎝"
-                        ],
-                        answer: "10㎝"
-                    },
-                    {
-                        question: "1000m は何km？",
-                        choices: [
-                            "1km",
-                            "10km",
-                            "100km",
-                            "0.1km"
-                        ],
-                        answer: "1km"
-                    },
-                    {
-                        question: "3個で120円のリンゴがあります。1個はいくら？",
-                        choices: [
-                            "30円",
-                            "40円",
-                            "50円",
-                            "60円"
-                        ],
-                        answer: "40円"
-                    }
-                ]
-            }
-
-            const skills = [
+        const quizData = {
+            japanese: [
                 {
-                    id: "expboost1",
-                    name: "expブーストα",
-                    description: "獲得expが2倍になる",
-                    price: 100,
-                    currency: "coin"
+                    question: "「石の上にも三年」の意味は？",
+                    choices: [
+                        "すぐにあきらめる",
+                        "我慢して続けるといいことがある",
+                        "石を三年間積み上げる",
+                        "早く行動する"
+                    ],
+                    answer: "我慢して続けるといいことがある"
                 },
                 {
-                    id: "coinboost1",
-                    name: "coinブーストα",
-                    description: "獲得coinが2倍になる",
-                    price: 150,
-                    currency: "coin"
+                    question: "「二兎を追う者は一兎をも得ず」の意味は？",
+                    choices: [
+                        "二つのことを同時に頑張る",
+                        "欲張るとどちらもうまくいかない",
+                        "ウサギを二匹捕まえる",
+                        "1つはあきらめないといけない"
+                    ],
+                    answer: "欲張るとどちらもうまくいかない"
                 },
                 {
-                    id: "gemboost1",
-                    name: "gemブーストα",
-                    description: "gem獲得確率が2倍になる",
-                    price: 500,
-                    currency: "coin"
+                    question: "「急がば回れ」の意味は？",
+                    choices: [
+                        "遠回りは無駄である",
+                        "急いでる時こそ遠回りをした方がいい",
+                        "回ると早く着く",
+                        "急いでるときは走ったほうがいい"
+                    ],
+                    answer: "急いでる時こそ遠回りをした方がいい"
                 },
                 {
-                    id: "pointboost1",
-                    name: "pointブーストα",
-                    description: "獲得pointが2倍になる",
-                    price: 500,
-                    currency: "coin"
+                    question: "「七転び八起き」の意味は？",
+                    choices: [
+                        "七回転んだらそこで試合終了",
+                        "七回転んで八回起きればいいことがある",
+                        "何度失敗してもあきらめずに立ち上がる",
+                        "七回転んだら八回起き上がらねばならない"
+                    ],
+                    answer: "何度失敗してもあきらめずに立ち上がる"
+                },
+                {
+                    question: "「井の中の蛙大海を知らず」の意味は？",
+                    choices: [
+                        "井戸の中の蛙は泳ぎが得意",
+                        "狭い範囲しか知らない人は広い世界を知らない",
+                        "大海はとても浅い",
+                        "井戸の中にはカエルがいる"
+                    ],
+                    answer: "狭い範囲しか知らない人は広い世界を知らない"
+                },
+                {
+                    question: "「雨降って地固まる」の意味は？",
+                    choices: [
+                        "雨が降ると地面が固まる",
+                        "人とトラブルがあった後は仲が深まる",
+                        "悲しいことがあった後は強くなる",
+                        "雨の日は地盤が緩くなる"
+                    ],
+                    answer: "人とトラブルがあった後は仲が深まる"
+                },
+                {
+                    question: "「唯一」の読み方は？",
+                    choices: [
+                        "ゆういつ",
+                        "ゆいつ",
+                        "ゆいいつ",
+                        "ゆういち"
+                    ],
+                    answer: "ゆいいつ"
+                },
+                {
+                    question: "「慎重」の読み方は？",
+                    choices: [
+                        "ちんじゅう",
+                        "しんちゅう",
+                        "しんちょう",
+                        "しんおも"
+                    ],
+                    answer: "しんちょう"
+                },
+                {
+                    question: "「逐一」の読み方は？",
+                    choices: [
+                        "とんいつ",
+                        "とんいち",
+                        "ちくいち",
+                        "ちくいつ"
+                    ],
+                    answer: "ちくいち"
+                },
+                {
+                    question: "「魅力」の読み方は？",
+                    choices: [
+                        "みりょう",
+                        "みりょく",
+                        "みぢから",
+                        "みちから"
+                    ],
+                    answer: "みりょく"
+                },
+                {
+                    question: "「魑魅魍魎」の読み方は？",
+                    choices: [
+                        "りみりょうもう",
+                        "ちりもうみょう",
+                        "ちみもうりょう",
+                        "みみみみ"
+                    ],
+                    answer: "ちみもうりょう"
+                },
+                {
+                    question: "「目から鱗が落ちる」の意味は？",
+                    choices: [
+                        "急に理解する",
+                        "驚いて黙る",
+                        "目から鱗が落ちるように痛い",
+                        "興味がわく"
+                    ],
+                    answer: "急に理解する"
+                },
+                {
+                    question: "「頭が上がらない」の意味は？",
+                    choices: [
+                        "プライドが高い",
+                        "尊敬して逆らえない",
+                        "頭脳がいい",
+                        "病気"
+                    ],
+                    answer: "尊敬して逆らえない"
+                },
+                {
+                    question: "「腕が鳴る」の意味は？",
+                    choices: [
+                        "骨が折れる",
+                        "自信があってやる気が出る",
+                        "楽しみで仕方がない",
+                        "腕時計が鳴る"
+                    ],
+                    answer: "自信があってやる気が出る"
+                },
+                {
+                    question: "「腹に据えかねる」の意味は？",
+                    choices: [
+                        "おなかが尋常じゃなく痛い",
+                        "我慢できないほど腹が立つ",
+                        "いくら食べてもおなかがいっぱいにならない",
+                        "何をしても楽しくない"
+                    ],
+                    answer: "我慢できないほど腹が立つ"
+                },
+                {
+                    question: "「先生が来る」の尊敬語は？",
+                    choices: [
+                        "先生がいらっしゃる",
+                        "先生がいらっしゅる",
+                        "先生が参る",
+                        "先生が来ます"
+                    ],
+                    answer: "先生がいらっしゃる"
+                },
+                {
+                    question: "「見る」の尊敬語は？",
+                    choices: [
+                        "ご覧になる",
+                        "見られる",
+                        "お見えになる",
+                        "ご覧する"
+                    ],
+                    answer: "ご覧になる"
+                },
+                {
+                    question: "「食べる」の尊敬語は？",
+                    choices: [
+                        "お食べになる",
+                        "食べます",
+                        "食べられる",
+                        "召し上がる"
+                    ],
+                    answer: "召し上がる"
+                },
+                {
+                    question: "「社長に会う」の尊敬語は？",
+                    choices: [
+                        "社長に会われる",
+                        "社長にお会いする",
+                        "社長にお会いになろ",
+                        "社長にお会いになる"
+                    ],
+                    answer: "社長にお会いになる"
+                },
+                {
+                    question: "「行く」の謙譲語は？",
+                    choices: [
+                        "行かせていただく",
+                        "いらっしゃる",
+                        "行きます",
+                        "参る"
+                    ],
+                    answer: "参る"
+                },
+                {
+                    question: "「聞く」の謙譲語は？",
+                    choices: [
+                        "お聞きになる",
+                        "聞きます",
+                        "聞かせる",
+                        "伺う"
+                    ],
+                    answer: "伺う"
+                }
+            ],
+            math: [
+                {
+                    question: "長方形の縦が2㎝、横が15㎝のとき、面積は何㎝²？",
+                    choices: [
+                        "30㎝²",
+                        "25㎝²",
+                        "26㎝²",
+                        "17㎝²"
+                    ],
+                    answer: "30㎝²"
+                },
+                {
+                    question: "1辺が6㎝の正三角形の周りの長さは何㎝？",
+                    choices: [
+                        "24㎝",
+                        "16㎝",
+                        "13㎝",
+                        "18㎝"
+                    ],
+                    answer: "18㎝"
+                },
+                {
+                    question: "8 × 7 は？",
+                    choices: [
+                        "54",
+                        "56",
+                        "64",
+                        "48"
+                    ],
+                    answer: "56"
+                },
+                {
+                    question: "72 ÷ 9 は？",
+                    choices: [
+                        "6",
+                        "8",
+                        "9",
+                        "7"
+                    ],
+                    answer: "8"
+                },
+                {
+                    question: "15 + 28 は？",
+                    choices: [
+                        "33",
+                        "43",
+                        "53",
+                        "42"
+                    ],
+                    answer: "43"
+                },
+                {
+                    question: "50 - 17 は？",
+                    choices: [
+                        "23",
+                        "43",
+                        "33",
+                        "27"
+                    ],
+                    answer: "33"
+                },
+                {
+                    question: "1時間は何分？",
+                    choices: [
+                        "100分",
+                        "30分",
+                        "60分",
+                        "90分"
+                    ],
+                    answer: "60分"
+                },
+                {
+                    question: "半径5㎝の円の直径は？",
+                    choices: [
+                        "5㎝",
+                        "10㎝",
+                        "15㎝",
+                        "20㎝"
+                    ],
+                    answer: "10㎝"
+                },
+                {
+                    question: "1000m は何km？",
+                    choices: [
+                        "1km",
+                        "10km",
+                        "100km",
+                        "0.1km"
+                    ],
+                    answer: "1km"
+                },
+                {
+                    question: "3個で120円のリンゴがあります。1個はいくら？",
+                    choices: [
+                        "30円",
+                        "40円",
+                        "50円",
+                        "60円"
+                    ],
+                    answer: "40円"
                 }
             ]
+        }
 
-            const currencyGachaCost = 10;
-
-            const currencyGachaItems = [
-                {
-                    name: "🪙 100",
-                    type: "coin",
-                    amount: 100,
-                    chance: 60
-                },
-                {
-                    name: "💎 1",
-                    type: "gem",
-                    amount: 1,
-                    chance: 25
-                },
-                {
-                    name: "⚡ 15",
-                    type: "point",
-                    amount: 15,
-                    chance: 14.9
-                },
-                {
-                    name: "🎫 1",
-                    type: "ticket",
-                    amount: 1,
-                    chance: 0.1
-                }
-            ]
-
-            const skillGachaCost = 100;
-
-            const rarityList = {
-                Common: 50,
-                Rare: 30,
-                Epic: 10,
-                Legendary: 5,
-                Mythic: 3,
-                Divine: 1.3,
-                Secret: 0.6,
-                OG: 0.1
+        const skills = [
+            {
+                id: "expboost1",
+                name: "expブーストα",
+                description: "獲得expが2倍になる",
+                price: 100,
+                currency: "coin"
+            },
+            {
+                id: "coinboost1",
+                name: "coinブーストα",
+                description: "獲得coinが2倍になる",
+                price: 150,
+                currency: "coin"
+            },
+            {
+                id: "gemboost1",
+                name: "gemブーストα",
+                description: "gem獲得確率が2倍になる",
+                price: 500,
+                currency: "coin"
+            },
+            {
+                id: "pointboost1",
+                name: "pointブーストα",
+                description: "獲得pointが2倍になる",
+                price: 500,
+                currency: "coin"
             }
+        ]
 
-            const skillGachaItems = [
-                {
-                    id: "expboost2",
-                    name: "expブーストβ",
-                    description: "獲得expが3倍になる<br>レア度：コモン",
-                    rarity: "Common"
-                },
-                {
-                    id: "coinboost2",
-                    name: "coinブーストβ",
-                    description: "獲得coinが3倍になる<br>レア度：コモン",
-                    rarity: "Common"
-                },
-                {
-                    id: "gemboost2",
-                    name: "gemブーストβ",
-                    description: "gem獲得確率が3倍になる<br>レア度：コモン",
-                    rarity: "Common"
-                },
-                {
-                    id: "pointboost2",
-                    name: "pointブーストβ",
-                    description: "獲得pointが3倍になる<br>レア度：コモン",
-                    rarity: "Common"
-                },
-                {
-                    id: "completebonus",
-                    name: "コンプリート棒ナス",
-                    description: "全問正解したときにcoin,gem,pointのどれかが2倍になる<br>レア度：レア",
-                    rarity: "Rare"
-                },
-                {
-                    id: "concentrate",
-                    name: "集中",
-                    description: "ゲーム時間が40秒になる<br>レア度：レア",
-                    rarity: "Rare"
-                },
-                {
-                    id: "advice",
-                    name: "アドバイス",
-                    description: "一問だけヒントを表示できる<br>レア度：エピック",
-                    rarity: "Epic"
-                },
-                {
-                    id: "escape",
-                    name: "現実逃避",
-                    description: "一度だけ不正解にならない<br>レア度：エピック",
-                    rarity: "Epic"
-                },
-                {
-                    id: "timecontrol",
-                    name: "時空支配",
-                    description: "ゲーム時間が50秒になる<br>レア度：レジェンダリー",
-                    rarity: "Legendary"
-                },
-                {
-                    id: "analysis",
-                    name: "解析",
-                    description: "1回だけ選択肢を3つにする<br>レア度：レジェンダリー",
-                    rarity: "Legendary"
-                },
-                {
-                    id: "unrivaled",
-                    name: "無双",
-                    description: "5連続で正解したらその瞬間にcoinが1000増える<br>レア度：ミシック",
-                    rarity: "Mythic"
-                },
-                {
-                    id: "almighty",
-                    name: "全知全能",
-                    description: "1問だけ全部の選択肢を正解にする<br>レア度：ミシック",
-                    rarity: "Mythic"
-                },
-                {
-                    id: "wisdom",
-                    name: "叡智（H）",
-                    description: "2回だけ選択肢を2つにする<br>レア度：ディバイン",
-                    rarity: "Divine"
-                },
-                {
-                    id: "cheat",
-                    name: "チート",
-                    description: "2回まで答えを表示できる<br>レア度：ディバイン",
-                    rarity: "Divine"
-                },
-                {
-                    id: "timetraveler",
-                    name: "未来人",
-                    description: "不正解を3回まで防ぐ<br>レア度：シークレット",
-                    rarity: "Secret"
-                },
-                {
-                    id: "creation",
-                    name: "創作の神",
-                    description: "獲得coin,gem,pointがランダムで5倍になる<br>レア度：シークレット",
-                    rarity: "Secret"
-                },
-                {
-                    id: "c00lkidd",
-                    name: "c00lkidd",
-                    description: "【パッシブ】同じくOGスキル「管理者」を装備中にのみ発動<br>スキル「管理者」を強化することができる<br>レア度：おーじー",
-                    rarity: "OG"
-                },
-                {
-                    id: "admin",
-                    name: "管理者",
-                    description: "獲得exp,coin,gem,pointが10倍になる<br>時間を操れる<br>選択肢の数を操れる<br>レア度：おーじー",
-                    rarity: "OG"
-                }
-            ]
+        const currencyGachaCost = 10;
 
-            const skillsContainer = document.querySelector(".skills");
+        const currencyGachaItems = [
+            {
+                name: "🪙 100",
+                type: "coin",
+                amount: 100,
+                chance: 60
+            },
+            {
+                name: "💎 1",
+                type: "gem",
+                amount: 1,
+                chance: 25
+            },
+            {
+                name: "⚡ 15",
+                type: "point",
+                amount: 15,
+                chance: 14.9
+            },
+            {
+                name: "🎫 1",
+                type: "ticket",
+                amount: 1,
+                chance: 0.1
+            }
+        ]
 
-            function loadSkills() {
+        const skillGachaCost = 100;
 
-                skillsContainer.innerHTML = "";
+        const rarityList = {
+            Common: 50,
+            Rare: 30,
+            Epic: 10,
+            Legendary: 5,
+            Mythic: 3,
+            Divine: 1.3,
+            Secret: 0.6,
+            OG: 0.1
+        }
 
-                skills.forEach(skill => {
+        const skillGachaItems = [
+            {
+                id: "expboost2",
+                name: "expブーストβ",
+                description: "獲得expが3倍になる<br>レア度：コモン",
+                rarity: "Common"
+            },
+            {
+                id: "coinboost2",
+                name: "coinブーストβ",
+                description: "獲得coinが3倍になる<br>レア度：コモン",
+                rarity: "Common"
+            },
+            {
+                id: "gemboost2",
+                name: "gemブーストβ",
+                description: "gem獲得確率が3倍になる<br>レア度：コモン",
+                rarity: "Common"
+            },
+            {
+                id: "pointboost2",
+                name: "pointブーストβ",
+                description: "獲得pointが3倍になる<br>レア度：コモン",
+                rarity: "Common"
+            },
+            {
+                id: "completebonus",
+                name: "コンプリート棒ナス",
+                description: "全問正解したときにcoin,gem,pointのどれかが2倍になる<br>レア度：レア",
+                rarity: "Rare"
+            },
+            {
+                id: "concentrate",
+                name: "集中",
+                description: "ゲーム時間が40秒になる<br>レア度：レア",
+                rarity: "Rare"
+            },
+            {
+                id: "advice",
+                name: "アドバイス",
+                description: "一問だけヒントを表示できる<br>レア度：エピック",
+                rarity: "Epic"
+            },
+            {
+                id: "escape",
+                name: "現実逃避",
+                description: "一度だけ不正解にならない<br>レア度：エピック",
+                rarity: "Epic"
+            },
+            {
+                id: "timecontrol",
+                name: "時空支配",
+                description: "ゲーム時間が50秒になる<br>レア度：レジェンダリー",
+                rarity: "Legendary"
+            },
+            {
+                id: "analysis",
+                name: "解析",
+                description: "1回だけ選択肢を3つにする<br>レア度：レジェンダリー",
+                rarity: "Legendary"
+            },
+            {
+                id: "unrivaled",
+                name: "無双",
+                description: "5連続で正解したらその瞬間にcoinが1000増える<br>レア度：ミシック",
+                rarity: "Mythic"
+            },
+            {
+                id: "almighty",
+                name: "全知全能",
+                description: "1問だけ全部の選択肢を正解にする<br>レア度：ミシック",
+                rarity: "Mythic"
+            },
+            {
+                id: "wisdom",
+                name: "叡智（H）",
+                description: "2回だけ選択肢を2つにする<br>レア度：ディバイン",
+                rarity: "Divine"
+            },
+            {
+                id: "cheat",
+                name: "チート",
+                description: "2回まで答えを表示できる<br>レア度：ディバイン",
+                rarity: "Divine"
+            },
+            {
+                id: "timetraveler",
+                name: "未来人",
+                description: "不正解を3回まで防ぐ<br>レア度：シークレット",
+                rarity: "Secret"
+            },
+            {
+                id: "creation",
+                name: "創作の神",
+                description: "獲得coin,gem,pointがランダムで5倍になる<br>レア度：シークレット",
+                rarity: "Secret"
+            },
+            {
+                id: "c00lkidd",
+                name: "c00lkidd",
+                description: "【パッシブ】同じくOGスキル「管理者」を装備中にのみ発動<br>スキル「管理者」を強化することができる<br>レア度：おーじー",
+                rarity: "OG"
+            },
+            {
+                id: "admin",
+                name: "管理者",
+                description: "獲得exp,coin,gem,pointが10倍になる<br>時間を操れる<br>選択肢の数を操れる<br>レア度：おーじー",
+                rarity: "OG"
+            }
+        ]
 
-                    skillsContainer.innerHTML += `
+        const skillsContainer = document.querySelector(".skills");
+
+        function loadSkills() {
+
+            skillsContainer.innerHTML = "";
+
+            skills.forEach(skill => {
+
+                skillsContainer.innerHTML += `
                     <div class="skill-card">
                         
                         <h3 class="skill-name">
@@ -2735,482 +2643,158 @@
                         </p>
 
                         ${ownedSkills.includes(skill.id)
-                            ? `
+                        ? `
                                 <button class="buy-btn" disabled>
                                     購入済み
                                 </button>
                             `
-                            : `
+                        : `
                                 <button class="buy-btn" onclick="buySkill('${skill.id}')">
                                     購入
                                 </button>
                             `
-                        }
+                    }
                         
                     </div>
                 `;
-                });
-            }
-
-            window.buySkill = async function (skillId) {
-
-                const allSkills = [...skills, ...skillGachaItems];
-
-                const skill = allSkills.find(s => s.id === skillId);
-
-                if (!skill) return;
-
-                // coinで買う
-                if (skill.currency === "coin") {
-
-                    if (coin < skill.price) {
-                        alert("coinが足りません");
-                        return;
-                    }
-
-                    coin -= skill.price;
-                }
-
-                // スキル追加
-                ownedSkills.push(skill.id);
-
-                updatecurrencyUI();
-
-                await saveProgress();
-
-                loadSkills();
-
-                alert(skill.name + "を購入しました！");
-            }
-
-            const shopscreen = document.getElementById("shop-screen");
-
-            window.openshop = function () {
-
-                shopscreen.classList.add("active");
-
-                loadSkills();
-
-            }
-
-            document.querySelector(".close-btn").onclick = function () {
-
-                shopscreen.classList.remove("active");
-
-            }
-
-            function shuffleArray(array) {
-
-                const newArray = [...array];
-
-                for (let i = newArray.length - 1; i > 0; i--) {
-
-                    const j = Math.floor(Math.random() * (i + 1));
-
-                    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
-                }
-
-                return newArray;
-            }
-
-            let currentSubject = "";
-            let currentQuestions = [];
-            let currentQuestionIndex = 0;
-
-            let score = 0;
-            let time = 30;
-            let timer;
-
-            let adminTime = 30;
-            let adminChoiceCount = 4;
-
-            let hackingGemChance = 1;
-
-            let level = 1;
-            let exp = 0;
-            let maxexp = 100;
-            let getexp = 0;
-
-            let coin = 0;   // 🪙
-            let gem = 0;    // 💎
-            let point = 0;  // ⚡
-            let ticket = 0; // 🎫
-            let getcoin = 0;
-            let getgem = 0;
-            let getpoint = 0;
-            let getticket = 0;
-
-            let ownedSkills = [];
-            let equippedSkill = "";
-
-            let escapeUsed = false;
-
-            let streak = 0;
-
-            let adminCode = "";
-            let isAdmin = localStorage.getItem("isAdmin") === "true";
-
-            function addCurrency(type, amount) {
-
-                if (type === "coin") {
-                    coin += amount;
-                }
-
-                if (type === "gem") {
-                    gem += amount;
-                }
-
-                if (type === "point") {
-                    point += amount;
-                }
-
-                if (type === "ticket") {
-                    ticket += amount;
-                }
-
-                updatecurrencyUI();
-
-                saveProgress();
-            }
-
-            function showScreen(screenId) {
-                document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-                document.getElementById(screenId).classList.add("active");
-            }
-
-            subjbuttons.forEach(button => {
-                button.onclick = () => {
-
-                    currentSubject = button.dataset.subj;
-
-                    currentQuestions = shuffleArray(quizData[currentSubject]);
-
-                    currentQuestionIndex = 0;
-
-                    score = 0;
-                    time = 30;
-                    getexp = 0;
-                    getcoin = 0;
-                    getgem = 0;
-                    getpoint = 0;
-                    getticket = 0;
-                    escapeUsed = false;
-                    streak = 0;
-
-                    if (equippedSkill === "concentrate") {
-                        time = 40;
-                    }
-
-                    if (equippedSkill === "timecontrol") {
-                        time = 50;
-                    }
-
-                    if (equippedSkill === "admin") {
-                        time = adminTime;
-                    }
-
-                    scoreText.textContent = "正解数：" + score + "問";
-                    timerText.textContent = time + "秒";
-
-                    clearInterval(timer);
-
-                    startTimer();
-
-                    showScreen("quiz-screen");
-
-                    showQuestion();
-
-                };
             });
+        }
 
-            window.app = { showScreen };
+        window.buySkill = async function (skillId) {
 
-            function showQuestion() {
+            const allSkills = [...skills, ...skillGachaItems];
 
-                const questionData = currentQuestions[currentQuestionIndex];
+            const skill = allSkills.find(s => s.id === skillId);
 
-                questiontext.textContent = questionData.question;
+            if (!skill) return;
 
-                choices.innerHTML = "";
+            // coinで買う
+            if (skill.currency === "coin") {
 
-                const shuffledChoices = shuffleArray(questionData.choices);
-
-                let displayChoices = shuffledChoices;
-
-                if (equippedSkill === "admin") {
-                    displayChoices = shuffledChoices.slice(0, adminChoiceCount);
-                    if (!displayChoices.includes(questionData.answer)) {
-                        displayChoices[0] = questionData.answer;
-                    }
+                if (coin < skill.price) {
+                    alert("coinが足りません");
+                    return;
                 }
 
-                displayChoices.forEach(choice => {
-
-                    choices.innerHTML += `
-                    <button class="choice-btn">
-                        ${choice}
-                    </button>
-                `;
-                });
-
-                const choiceButtons = document.querySelectorAll(".choice-btn");
-
-                choiceButtons.forEach(button => {
-                    button.onclick = () => {
-                        choiceButtons.forEach(btn => {
-                            btn.disabled = true;
-                        });
-                        if (button.textContent.trim() === questionData.answer) {
-
-                            message.textContent = "正解！！"
-
-                            correctSound.currentTime = 0;
-                            correctSound.play();
-
-                            message.classList.remove("wrong");
-                            message.classList.add("correct");
-
-                            score++;
-                            streak++;
-
-                            message2.textContent = "";
-
-                            if (equippedSkill === "unrivaled" && streak >= 5) {
-
-                                coin += 1000;
-
-                                message2.textContent = "🔥無双発動！ 🪙 1000";
-
-                                updatecurrencyUI();
-
-                                saveProgress();
-                            }
-
-                            let expAmount = 10;
-                            let coinAmount = 10;
-                            let pointAmount = 1;
-
-                            // expブースト
-                            if (equippedSkill === "expboost1") {
-                                expAmount *= 2;
-                            }
-
-                            if (equippedSkill === "expboost2") {
-                                expAmount *= 3;
-                            }
-
-                            // coinブースト
-                            if (equippedSkill === "coinboost1") {
-                                coinAmount *= 2;
-                            }
-
-                            if (equippedSkill === "coinboost2") {
-                                coinAmount *= 3;
-                            }
-
-                            // pointブースト
-                            if (equippedSkill === "pointboost1") {
-                                pointAmount *= 2;
-                            }
-
-                            if (equippedSkill === "pointboost2") {
-                                pointAmount *= 3;
-                            }
-
-                            // admin
-                            if (equippedSkill === "admin") {
-                                expAmount *= 10;
-                                coinAmount *= 10;
-                                pointAmount *= 10;
-                            }
-
-                            if (ownedSkills.includes("c00lkidd") && equippedSkill === "admin") {
-                                expAmount *= 10;
-                                coinAmount *= 10;
-                                pointAmount *= 10;
-                            }
-
-                            getexp += expAmount;
-
-                            getcoin += coinAmount;
-
-                            getpoint += pointAmount;
-
-                            let gemChance = 0.01;
-
-                            // gemブースト
-                            if (equippedSkill === "gemboost1") {
-                                gemChance *= 2;
-                            }
-
-                            if (equippedSkill === "gemboost2") {
-                                gemChance *= 3;
-                            }
-
-                            if (ownedSkills.includes("c00lkidd") && equippedSkill === "admin") {
-                                gemChance = hackingGemChance / 100;
-                            }
-
-                            if (Math.random() < gemChance) {
-
-                                let gemReward = 1;
-
-                                if (equippedSkill === "admin") {
-                                    gemReward *= 10;
-                                }
-
-                                if (ownedSkills.includes("c00lkidd") && equippedSkill === "admin") {
-                                    gemReward *= 10;
-                                }
-
-                                getgem += gemReward;
-
-                                message2.textContent = "💎ゲット！ 強運だね！"
-                            }
-
-                            scoreText.textContent = "正解数：" + score + "問";
-
-                        } else {
-
-                            if (equippedSkill === "escape" && !escapeUsed) {
-
-                                escapeUsed = true;
-
-                                message.textContent = "現実逃避発動！";
-
-                                message.classList.remove("wrong");
-                                message.classList.add("correct");
-                            } else {
-
-                                message.textContent = "不正解……"
-
-                                streak = 0;
-
-                                wrongSound.currentTime = 0;
-                                wrongSound.play();
-
-                                message.classList.remove("correct");
-                                message.classList.add("wrong");
-
-                            }
-                        }
-
-                        currentQuestionIndex++;
-
-                        setTimeout(() => {
-
-                            message.textContent = "";
-                            message2.textContent = "";
-
-                            if (currentQuestionIndex < quizData[currentSubject].length) {
-
-                                showQuestion();
-
-                            } else {
-
-                                clearInterval(timer);
-
-                                addExp(getexp);
-
-                                if (equippedSkill === "completebonus" && score === quizData[currentSubject].length) {
-
-                                    const rewards = ["coin", "gem", "point"];
-                                    const randomReward = rewards[Math.floor(Math.random() * rewards.length)];
-
-                                    if (randomReward === "coin") {
-                                        getcoin *= 2;
-                                    }
-
-                                    if (randomReward === "gem") {
-                                        getgem *= 2;
-                                    }
-
-                                    if (randomReward === "point") {
-                                        getpoint *= 2;
-                                    }
-                                }
-
-                                addCurrency("coin", getcoin);
-
-                                addCurrency("gem", getgem);
-
-                                addCurrency("point", getpoint);
-
-                                updateLevelUI();
-
-                                updatecurrencyUI();
-
-                                saveProgress();
-
-                                resultText.textContent = "正解数：" + score + "問！！"
-
-                                showScreen("result-screen");
-
-                            }
-                        }, 1500);
-                    };
-                });
+                coin -= skill.price;
             }
 
-            function startTimer() {
+            // スキル追加
+            ownedSkills.push(skill.id);
 
-                clearInterval(timer);
+            updatecurrencyUI();
 
-                timer = setInterval(() => {
+            await saveProgress();
 
-                    time--;
+            loadSkills();
 
-                    timerText.textContent = time + "秒";
+            alert(skill.name + "を購入しました！");
+        }
 
-                    if (time <= 0) {
+        const shopscreen = document.getElementById("shop-screen");
 
-                        clearInterval(timer);
+        window.openshop = function () {
 
-                        addExp(getexp);
+            shopscreen.classList.add("active");
 
-                        if (equippedSkill === "completebonus" && score === quizData[currentSubject].length) {
+            loadSkills();
 
-                            const rewards = ["coin", "gem", "point"];
-                            const randomReward = rewards[Math.floor(Math.random() * rewards.length)];
+        }
 
-                            if (randomReward === "coin") {
-                                getcoin *= 2;
-                            }
+        document.querySelector(".close-btn").onclick = function () {
 
-                            if (randomReward === "gem") {
-                                getgem *= 2;
-                            }
+            shopscreen.classList.remove("active");
 
-                            if (randomReward === "point") {
-                                getpoint *= 2;
-                            }
-                        }
+        }
 
-                        addCurrency("coin", getcoin);
+        function shuffleArray(array) {
 
-                        addCurrency("gem", getgem);
+            const newArray = [...array];
 
-                        addCurrency("point", getpoint);
+            for (let i = newArray.length - 1; i > 0; i--) {
 
-                        updateLevelUI();
+                const j = Math.floor(Math.random() * (i + 1));
 
-                        updatecurrencyUI();
-
-                        saveProgress();
-
-                        resultText.textContent = "正解数：" + score + "問！！"
-
-                        showScreen("result-screen");
-
-                    }
-                }, 1000);
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
             }
 
-            restartbtn.onclick = function () {
+            return newArray;
+        }
+
+        let currentSubject = "";
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+
+        let score = 0;
+        let time = 30;
+        let timer;
+
+        let adminTime = 30;
+        let adminChoiceCount = 4;
+
+        let hackingGemChance = 1;
+
+        let level = 1;
+        let exp = 0;
+        let maxexp = 100;
+        let getexp = 0;
+
+        let coin = 0;   // 🪙
+        let gem = 0;    // 💎
+        let point = 0;  // ⚡
+        let ticket = 0; // 🎫
+        let getcoin = 0;
+        let getgem = 0;
+        let getpoint = 0;
+        let getticket = 0;
+
+        let ownedSkills = [];
+        let equippedSkill = "";
+
+        let escapeUsed = false;
+
+        let streak = 0;
+
+        let adminCode = "";
+        let isAdmin = localStorage.getItem("isAdmin") === "true";
+
+        function addCurrency(type, amount) {
+
+            if (type === "coin") {
+                coin += amount;
+            }
+
+            if (type === "gem") {
+                gem += amount;
+            }
+
+            if (type === "point") {
+                point += amount;
+            }
+
+            if (type === "ticket") {
+                ticket += amount;
+            }
+
+            updatecurrencyUI();
+
+            saveProgress();
+        }
+
+        function showScreen(screenId) {
+            document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+            document.getElementById(screenId).classList.add("active");
+        }
+
+        subjbuttons.forEach(button => {
+            button.onclick = () => {
+
+                currentSubject = button.dataset.subj;
 
                 currentQuestions = shuffleArray(quizData[currentSubject]);
 
                 currentQuestionIndex = 0;
+
                 score = 0;
                 time = 30;
                 getexp = 0;
@@ -3236,350 +2820,654 @@
                 scoreText.textContent = "正解数：" + score + "問";
                 timerText.textContent = time + "秒";
 
+                clearInterval(timer);
+
                 startTimer();
 
                 showScreen("quiz-screen");
 
                 showQuestion();
 
+            };
+        });
+
+        window.app = { showScreen };
+
+        function showQuestion() {
+
+            const questionData = currentQuestions[currentQuestionIndex];
+
+            questiontext.textContent = questionData.question;
+
+            choices.innerHTML = "";
+
+            const shuffledChoices = shuffleArray(questionData.choices);
+
+            let displayChoices = shuffledChoices;
+
+            if (equippedSkill === "admin") {
+                displayChoices = shuffledChoices.slice(0, adminChoiceCount);
+                if (!displayChoices.includes(questionData.answer)) {
+                    displayChoices[0] = questionData.answer;
+                }
             }
 
-            restartbtn2.onclick = function () {
+            displayChoices.forEach(choice => {
 
-                currentQuestionIndex = 0;
-                score = 0;
-                time = 30;
+                choices.innerHTML += `
+                    <button class="choice-btn">
+                        ${choice}
+                    </button>
+                `;
+            });
 
-                if (equippedSkill === "concentrate") {
-                    time = 40;
-                }
+            const choiceButtons = document.querySelectorAll(".choice-btn");
 
-                if (equippedSkill === "timecontrol") {
-                    time = 50;
-                }
+            choiceButtons.forEach(button => {
+                button.onclick = () => {
+                    choiceButtons.forEach(btn => {
+                        btn.disabled = true;
+                    });
+                    if (button.textContent.trim() === questionData.answer) {
 
-                scoreText.textContent = "正解数：" + score + "問";
+                        message.textContent = "正解！！"
+
+                        correctSound.currentTime = 0;
+                        correctSound.play();
+
+                        message.classList.remove("wrong");
+                        message.classList.add("correct");
+
+                        score++;
+                        streak++;
+
+                        message2.textContent = "";
+
+                        if (equippedSkill === "unrivaled" && streak >= 5) {
+
+                            coin += 1000;
+
+                            message2.textContent = "🔥無双発動！ 🪙 1000";
+
+                            updatecurrencyUI();
+
+                            saveProgress();
+                        }
+
+                        let expAmount = 10;
+                        let coinAmount = 10;
+                        let pointAmount = 1;
+
+                        // expブースト
+                        if (equippedSkill === "expboost1") {
+                            expAmount *= 2;
+                        }
+
+                        if (equippedSkill === "expboost2") {
+                            expAmount *= 3;
+                        }
+
+                        // coinブースト
+                        if (equippedSkill === "coinboost1") {
+                            coinAmount *= 2;
+                        }
+
+                        if (equippedSkill === "coinboost2") {
+                            coinAmount *= 3;
+                        }
+
+                        // pointブースト
+                        if (equippedSkill === "pointboost1") {
+                            pointAmount *= 2;
+                        }
+
+                        if (equippedSkill === "pointboost2") {
+                            pointAmount *= 3;
+                        }
+
+                        // admin
+                        if (equippedSkill === "admin") {
+                            expAmount *= 10;
+                            coinAmount *= 10;
+                            pointAmount *= 10;
+                        }
+
+                        if (ownedSkills.includes("c00lkidd") && equippedSkill === "admin") {
+                            expAmount *= 10;
+                            coinAmount *= 10;
+                            pointAmount *= 10;
+                        }
+
+                        getexp += expAmount;
+
+                        getcoin += coinAmount;
+
+                        getpoint += pointAmount;
+
+                        let gemChance = 0.01;
+
+                        // gemブースト
+                        if (equippedSkill === "gemboost1") {
+                            gemChance *= 2;
+                        }
+
+                        if (equippedSkill === "gemboost2") {
+                            gemChance *= 3;
+                        }
+
+                        if (ownedSkills.includes("c00lkidd") && equippedSkill === "admin") {
+                            gemChance = hackingGemChance / 100;
+                        }
+
+                        if (Math.random() < gemChance) {
+
+                            let gemReward = 1;
+
+                            if (equippedSkill === "admin") {
+                                gemReward *= 10;
+                            }
+
+                            if (ownedSkills.includes("c00lkidd") && equippedSkill === "admin") {
+                                gemReward *= 10;
+                            }
+
+                            getgem += gemReward;
+
+                            message2.textContent = "💎ゲット！ 強運だね！"
+                        }
+
+                        scoreText.textContent = "正解数：" + score + "問";
+
+                    } else {
+
+                        if (equippedSkill === "escape" && !escapeUsed) {
+
+                            escapeUsed = true;
+
+                            message.textContent = "現実逃避発動！";
+
+                            message.classList.remove("wrong");
+                            message.classList.add("correct");
+                        } else {
+
+                            message.textContent = "不正解……"
+
+                            streak = 0;
+
+                            wrongSound.currentTime = 0;
+                            wrongSound.play();
+
+                            message.classList.remove("correct");
+                            message.classList.add("wrong");
+
+                        }
+                    }
+
+                    currentQuestionIndex++;
+
+                    setTimeout(() => {
+
+                        message.textContent = "";
+                        message2.textContent = "";
+
+                        if (currentQuestionIndex < quizData[currentSubject].length) {
+
+                            showQuestion();
+
+                        } else {
+
+                            clearInterval(timer);
+
+                            addExp(getexp);
+
+                            if (equippedSkill === "completebonus" && score === quizData[currentSubject].length) {
+
+                                const rewards = ["coin", "gem", "point"];
+                                const randomReward = rewards[Math.floor(Math.random() * rewards.length)];
+
+                                if (randomReward === "coin") {
+                                    getcoin *= 2;
+                                }
+
+                                if (randomReward === "gem") {
+                                    getgem *= 2;
+                                }
+
+                                if (randomReward === "point") {
+                                    getpoint *= 2;
+                                }
+                            }
+
+                            addCurrency("coin", getcoin);
+
+                            addCurrency("gem", getgem);
+
+                            addCurrency("point", getpoint);
+
+                            updateLevelUI();
+
+                            updatecurrencyUI();
+
+                            saveProgress();
+
+                            resultText.textContent = "正解数：" + score + "問！！"
+
+                            showScreen("result-screen");
+
+                        }
+                    }, 1500);
+                };
+            });
+        }
+
+        function startTimer() {
+
+            clearInterval(timer);
+
+            timer = setInterval(() => {
+
+                time--;
+
                 timerText.textContent = time + "秒";
 
-                showScreen("subj-select-screen");
+                if (time <= 0) {
 
-            }
+                    clearInterval(timer);
 
-            window.openSetting = function () {
+                    addExp(getexp);
 
-                settingscreen.classList.add("active");
+                    if (equippedSkill === "completebonus" && score === quizData[currentSubject].length) {
 
-                const adminPanel = document.querySelector(".admin-panel");
+                        const rewards = ["coin", "gem", "point"];
+                        const randomReward = rewards[Math.floor(Math.random() * rewards.length)];
 
-                if (ownedSkills.includes("admin")) {
-                    adminPanel.style.display = "flex";
-                } else {
-                    adminPanel.style.display = "none";
-                }
-
-                const hackingPanel = document.querySelector(".hacking-panel");
-
-                if (ownedSkills.includes("c00lkidd")) {
-                    hackingPanel.style.display = "flex";
-                } else {
-                    hackingPanel.style.display = "none";
-                }
-            }
-
-            window.closeSetting = function () {
-                settingscreen.classList.remove("active");
-            }
-
-            const adminSaveBtn = document.querySelector(".admin-save-btn");
-
-            adminSaveBtn.onclick = async function () {
-
-                adminTime = Number(document.querySelector(".admin-time").value);
-
-                adminChoiceCount = Number(document.querySelector(".admin-choice-count").value);
-
-                if (adminTime < 1) adminTime = 1;
-                if (adminChoiceCount < 2) adminChoiceCount = 2;
-
-                await saveProgress();
-
-                alert("管理者スキルを保存しました");
-
-                showScreen("home-screen");
-            }
-
-            const hackingSaveBtn = document.querySelector(".hacking-save-btn");
-
-            hackingSaveBtn.onclick = async function () {
-
-                hackingGemChance = Number(document.querySelector(".hacking-gem-chance").value);
-
-                if (hackingGemChance < 0) hackingGemChance = 0;
-
-                await saveProgress();
-
-                alert("ハッキングを保存しました");
-
-                showScreen("home-screen");
-            }
-
-            const choiceInput = document.querySelector(".admin-choice-count");
-
-            choiceInput.addEventListener("input", () => {
-
-                if (choiceInput.value > 4) choiceInput.value = 4;
-            });
-
-            const timeInput = document.querySelector(".admin-time");
-
-            timeInput.addEventListener("input", () => {
-
-                if (timeInput.value > 60) timeInput.value = 60;
-            });
-
-            const gemChanceInput = document.querySelector(".hacking-gem-chance");
-
-            gemChanceInput.addEventListener("input", () => {
-
-                if (gemChanceInput.value > 50) gemChanceInput.value = 50;
-            })
-
-            window.inventoryscreen = document.getElementById("inventory-screen");
-
-            window.openInventory = function () {
-
-                inventoryscreen.classList.add("active");
-
-                const container = document.querySelector(".skills-container");
-
-                container.innerHTML = "";
-
-                loadInventory();
-            }
-
-            window.closeInventory = function () {
-
-                inventoryscreen.classList.remove("active");
-            }
-
-            // ユーザー名保存処理
-            savebtn.onclick = async function () {
-
-                const playerName = nameInput.value.trim();
-
-                if (playerName === "") {
-                    alert("名前を入力してください");
-                    return;
-                }
-
-                try {
-                    await setDoc(doc(db, "users", userID), {
-                        name: playerName,
-                        level: level,
-                        exp: exp,
-                        maxexp: maxexp,
-                        coin,
-                        gem,
-                        point,
-                        ticket
-                    }, { merge: true });
-
-                    localStorage.setItem("userName", playerName);
-                    userName = playerName;
-                    alert("名前を保存しました")
-                    settingscreen.classList.remove("active");
-                } catch (error) {
-                    console.error(error);
-                    alert("保存に失敗しました");
-                }
-            }
-
-            // ユーザー名・データ読み込み処理
-            async function loadName() {
-                try {
-                    const docRef = doc(db, "users", userID);
-                    const docSnap = await getDoc(docRef);
-
-                    if (docSnap.exists()) {
-                        const data = docSnap.data();
-                        if (data.name) {
-                            nameInput.value = data.name;
-                            userName = data.name;
-                            localStorage.setItem("userName", data.name);
+                        if (randomReward === "coin") {
+                            getcoin *= 2;
                         }
 
-                        if (data.level !== undefined) level = data.level;
-                        if (data.exp !== undefined) exp = data.exp;
-                        if (data.maxexp !== undefined) maxexp = data.maxexp;
-                        if (data.coin !== undefined) coin = data.coin;
-                        if (data.gem !== undefined) gem = data.gem;
-                        if (data.point !== undefined) point = data.point;
-                        if (data.ticket !== undefined) ticket = data.ticket;
-                        if (data.ownedSkills !== undefined) ownedSkills = data.ownedSkills;
-                        if (data.equippedSkill !== undefined) equippedSkill = data.equippedSkill;
-                        if (data.adminTime !== undefined) {
-                            adminTime = data.adminTime;
-                            document.querySelector(".admin-time").value = adminTime;
-                        }
-                        if (data.adminChoiceCount !== undefined) {
-                            adminChoiceCount = data.adminChoiceCount;
-                            document.querySelector(".admin-choice-count").value = adminChoiceCount;
-                        }
-                        if (data.hackingGemChance !== undefined) {
-                            hackingGemChance = data.hackingGemChance;
-                            document.querySelector(".hacking-gem-chance").value = hackingGemChance;
+                        if (randomReward === "gem") {
+                            getgem *= 2;
                         }
 
-                        updateLevelUI();
-
-                        updatecurrencyUI();
-                    } else {
-                        nameInput.value = userName;
+                        if (randomReward === "point") {
+                            getpoint *= 2;
+                        }
                     }
-                } catch (error) {
-                    console.error(error);
+
+                    addCurrency("coin", getcoin);
+
+                    addCurrency("gem", getgem);
+
+                    addCurrency("point", getpoint);
+
+                    updateLevelUI();
+
+                    updatecurrencyUI();
+
+                    saveProgress();
+
+                    resultText.textContent = "正解数：" + score + "問！！"
+
+                    showScreen("result-screen");
+
                 }
+            }, 1000);
+        }
+
+        restartbtn.onclick = function () {
+
+            currentQuestions = shuffleArray(quizData[currentSubject]);
+
+            currentQuestionIndex = 0;
+            score = 0;
+            time = 30;
+            getexp = 0;
+            getcoin = 0;
+            getgem = 0;
+            getpoint = 0;
+            getticket = 0;
+            escapeUsed = false;
+            streak = 0;
+
+            if (equippedSkill === "concentrate") {
+                time = 40;
             }
 
-            savebtn2.onclick = function () {
+            if (equippedSkill === "timecontrol") {
+                time = 50;
+            }
 
-                const selectedTheme = themeSelect.value;
+            if (equippedSkill === "admin") {
+                time = adminTime;
+            }
 
-                if (selectedTheme === "dark") {
+            scoreText.textContent = "正解数：" + score + "問";
+            timerText.textContent = time + "秒";
 
-                    document.body.classList.add("dark");
+            startTimer();
 
-                    localStorage.setItem("theme", "dark");
+            showScreen("quiz-screen");
 
-                    alert("適応しました！")
+            showQuestion();
 
-                    settingscreen.classList.remove("active");
+        }
 
+        restartbtn2.onclick = function () {
+
+            currentQuestionIndex = 0;
+            score = 0;
+            time = 30;
+
+            if (equippedSkill === "concentrate") {
+                time = 40;
+            }
+
+            if (equippedSkill === "timecontrol") {
+                time = 50;
+            }
+
+            scoreText.textContent = "正解数：" + score + "問";
+            timerText.textContent = time + "秒";
+
+            showScreen("subj-select-screen");
+
+        }
+
+        window.openSetting = function () {
+
+            settingscreen.classList.add("active");
+
+            const adminPanel = document.querySelector(".admin-panel");
+
+            if (ownedSkills.includes("admin")) {
+                adminPanel.style.display = "flex";
+            } else {
+                adminPanel.style.display = "none";
+            }
+
+            const hackingPanel = document.querySelector(".hacking-panel");
+
+            if (ownedSkills.includes("c00lkidd")) {
+                hackingPanel.style.display = "flex";
+            } else {
+                hackingPanel.style.display = "none";
+            }
+        }
+
+        window.closeSetting = function () {
+            settingscreen.classList.remove("active");
+        }
+
+        window.openAdminPanel = function() {
+
+            document.querySelector(".adminPanel").style.display = "flex";
+        }
+
+        const adminSaveBtn = document.querySelector(".admin-save-btn");
+
+        adminSaveBtn.onclick = async function () {
+
+            adminTime = Number(document.querySelector(".admin-time").value);
+
+            adminChoiceCount = Number(document.querySelector(".admin-choice-count").value);
+
+            if (adminTime < 1) adminTime = 1;
+            if (adminChoiceCount < 2) adminChoiceCount = 2;
+
+            await saveProgress();
+
+            alert("管理者スキルを保存しました");
+
+            showScreen("home-screen");
+        }
+
+        const hackingSaveBtn = document.querySelector(".hacking-save-btn");
+
+        hackingSaveBtn.onclick = async function () {
+
+            hackingGemChance = Number(document.querySelector(".hacking-gem-chance").value);
+
+            if (hackingGemChance < 0) hackingGemChance = 0;
+
+            await saveProgress();
+
+            alert("ハッキングを保存しました");
+
+            showScreen("home-screen");
+        }
+
+        const choiceInput = document.querySelector(".admin-choice-count");
+
+        choiceInput.addEventListener("input", () => {
+
+            if (choiceInput.value > 4) choiceInput.value = 4;
+        });
+
+        const timeInput = document.querySelector(".admin-time");
+
+        timeInput.addEventListener("input", () => {
+
+            if (timeInput.value > 60) timeInput.value = 60;
+        });
+
+        const gemChanceInput = document.querySelector(".hacking-gem-chance");
+
+        gemChanceInput.addEventListener("input", () => {
+
+            if (gemChanceInput.value > 50) gemChanceInput.value = 50;
+        })
+
+        window.inventoryscreen = document.getElementById("inventory-screen");
+
+        window.openInventory = function () {
+
+            inventoryscreen.classList.add("active");
+
+            const container = document.querySelector(".skills-container");
+
+            container.innerHTML = "";
+
+            loadInventory();
+        }
+
+        window.closeInventory = function () {
+
+            inventoryscreen.classList.remove("active");
+        }
+
+        // ユーザー名保存処理
+        savebtn.onclick = async function () {
+
+            const playerName = nameInput.value.trim();
+
+            if (playerName === "") {
+                alert("名前を入力してください");
+                return;
+            }
+
+            try {
+                await setDoc(doc(db, "users", userID), {
+                    name: playerName,
+                    level: level,
+                    exp: exp,
+                    maxexp: maxexp,
+                    coin,
+                    gem,
+                    point,
+                    ticket
+                }, { merge: true });
+
+                localStorage.setItem("userName", playerName);
+                userName = playerName;
+                alert("名前を保存しました")
+                settingscreen.classList.remove("active");
+            } catch (error) {
+                console.error(error);
+                alert("保存に失敗しました");
+            }
+        }
+
+        // ユーザー名・データ読み込み処理
+        async function loadName() {
+            try {
+                const docRef = doc(db, "users", userID);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (data.name) {
+                        nameInput.value = data.name;
+                        userName = data.name;
+                        localStorage.setItem("userName", data.name);
+                    }
+
+                    if (data.level !== undefined) level = data.level;
+                    if (data.exp !== undefined) exp = data.exp;
+                    if (data.maxexp !== undefined) maxexp = data.maxexp;
+                    if (data.coin !== undefined) coin = data.coin;
+                    if (data.gem !== undefined) gem = data.gem;
+                    if (data.point !== undefined) point = data.point;
+                    if (data.ticket !== undefined) ticket = data.ticket;
+                    if (data.ownedSkills !== undefined) ownedSkills = data.ownedSkills;
+                    if (data.equippedSkill !== undefined) equippedSkill = data.equippedSkill;
+                    if (data.adminTime !== undefined) {
+                        adminTime = data.adminTime;
+                        document.querySelector(".admin-time").value = adminTime;
+                    }
+                    if (data.adminChoiceCount !== undefined) {
+                        adminChoiceCount = data.adminChoiceCount;
+                        document.querySelector(".admin-choice-count").value = adminChoiceCount;
+                    }
+                    if (data.hackingGemChance !== undefined) {
+                        hackingGemChance = data.hackingGemChance;
+                        document.querySelector(".hacking-gem-chance").value = hackingGemChance;
+                    }
+
+                    updateLevelUI();
+
+                    updatecurrencyUI();
                 } else {
-
-                    document.body.classList.remove("dark");
-
-                    localStorage.setItem("theme", "light");
-
-                    alert("適応しました！")
-
-                    settingscreen.classList.remove("active");
-
+                    nameInput.value = userName;
                 }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        savebtn2.onclick = function () {
+
+            const selectedTheme = themeSelect.value;
+
+            if (selectedTheme === "dark") {
+
+                document.body.classList.add("dark");
+
+                localStorage.setItem("theme", "dark");
+
+                alert("適応しました！")
+
+                settingscreen.classList.remove("active");
+
+            } else {
+
+                document.body.classList.remove("dark");
+
+                localStorage.setItem("theme", "light");
+
+                alert("適応しました！")
+
+                settingscreen.classList.remove("active");
+
+            }
+        }
+
+        async function saveProgress() {
+            try {
+                await setDoc(doc(db, "users", userID), {
+                    level,
+                    exp,
+                    maxexp,
+                    coin,
+                    gem,
+                    point,
+                    ticket,
+                    ownedSkills,
+                    equippedSkill,
+                    adminTime,
+                    adminChoiceCount,
+                    hackingGemChance
+                }, { merge: true });
+            } catch (error) {
+                console.error("保存失敗", error);
+            }
+        }
+
+        function addExp(amount) {
+            exp += amount;
+
+            while (exp >= maxexp) {
+                exp -= maxexp;
+                level++;
+                maxexp += 100;
             }
 
-            async function saveProgress() {
-                try {
-                    await setDoc(doc(db, "users", userID), {
-                        level,
-                        exp,
-                        maxexp,
-                        coin,
-                        gem,
-                        point,
-                        ticket,
-                        ownedSkills,
-                        equippedSkill,
-                        adminTime,
-                        adminChoiceCount,
-                        hackingGemChance
-                    }, { merge: true });
-                } catch (error) {
-                    console.error("保存失敗", error);
-                }
-            }
+            updateLevelUI();
+        }
 
-            function addExp(amount) {
-                exp += amount;
+        function updateLevelUI() {
+            document.querySelector(".level").textContent = "Lv." + level;
 
-                while (exp >= maxexp) {
-                    exp -= maxexp;
-                    level++;
-                    maxexp += 100;
-                }
+            const percent = (exp / maxexp) * 100;
+            document.querySelector(".exp-fill").style.width = percent + "%";
 
-                updateLevelUI();
-            }
+            document.querySelector(".exp-text").textContent = `${exp} / ${maxexp}`;
+        }
 
-            function updateLevelUI() {
-                document.querySelector(".level").textContent = "Lv." + level;
+        function updatecurrencyUI() {
 
-                const percent = (exp / maxexp) * 100;
-                document.querySelector(".exp-fill").style.width = percent + "%";
+            // ヘッダー側
+            document.querySelector(".coin-text").textContent = coin;
 
-                document.querySelector(".exp-text").textContent = `${exp} / ${maxexp}`;
-            }
+            document.querySelector(".gem-text").textContent = gem;
 
-            function updatecurrencyUI() {
+            document.querySelector(".point-text").textContent = point;
 
-                // ヘッダー側
-                document.querySelector(".coin-text").textContent = coin;
+            document.querySelector(".ticket-text").textContent = ticket;
 
-                document.querySelector(".gem-text").textContent = gem;
+            // ショップ側
+            document.querySelector(".shop-coin-text").textContent = coin;
 
-                document.querySelector(".point-text").textContent = point;
+            document.querySelector(".shop-gem-text").textContent = gem;
+        }
 
-                document.querySelector(".ticket-text").textContent = ticket;
+        function loadInventory() {
 
-                // ショップ側
-                document.querySelector(".shop-coin-text").textContent = coin;
+            const container = document.querySelector(".skills-container");
 
-                document.querySelector(".shop-gem-text").textContent = gem;
-            }
+            container.innerHTML = "";
 
-            function isFullScreen() {
-                return document.fullscreenElement || document.webkitFullscreenElement;
-            }
+            if (ownedSkills.length === 0) {
 
-            window.enterFullScreen = function () {
-
-                const elem = document.documentElement;
-
-                if (elem.requestFullscreen) {
-                    elem.requestFullscreen();
-                } else if (elem.webkitRequestFullscreen) {
-                    elem.webkitRequestFullscreen();
-                }
-
-                document
-                    .getElementById("fullscreen-screen")
-                    .classList.remove("active");
-            }
-
-            document.querySelector(".cancel-btn").onclick = function () {
-                document
-                    .getElementById("fullscreen-screen")
-                    .classList.remove("active");
-            }
-
-            function loadInventory() {
-
-                const container = document.querySelector(".skills-container");
-
-                container.innerHTML = "";
-
-                if (ownedSkills.length === 0) {
-
-                    container.innerHTML = `
+                container.innerHTML = `
                     <p class="inventory-empty">
                         スキルを所持していません
                     </p>
                 `;
 
-                    return;
-                }
+                return;
+            }
 
-                ownedSkills
-                    .filter(skillId => skillId !== "c00lkidd")
-                    .forEach(skillId => {
+            ownedSkills
+                .filter(skillId => skillId !== "c00lkidd")
+                .forEach(skillId => {
 
-                        const allSkills = [...skills, ...skillGachaItems];
+                    const allSkills = [...skills, ...skillGachaItems];
 
-                        const skill = allSkills.find(s => s.id === skillId);
+                    const skill = allSkills.find(s => s.id === skillId);
 
-                        if (!skill) return;
+                    if (!skill) return;
 
-                        container.innerHTML += `
+                    container.innerHTML += `
                     <div class="inventory-skill">
 
                         <h3 class="inventory-skill-name">
@@ -3591,186 +3479,186 @@
                         </p>
 
                         ${equippedSkill === skill.id
-                                ? `
+                            ? `
                                 <button class="equipped-btn" disabled>
                                     装備中
                                 </button>
                             `
-                                : `
+                            : `
                                 <button class="equipped-btn" onclick="equippedSkills('${skill.id}')">
                                     装備
                                 </button>
                             `
-                            }
+                        }
                         
                     </div>
                 `;
-                    });
-            }
+                });
+        }
 
-            window.equippedSkills = async function (skillId) {
+        window.equippedSkills = async function (skillId) {
 
-                equippedSkill = skillId;
+            equippedSkill = skillId;
+
+            await saveProgress();
+
+            loadInventory();
+
+            const allSkills = [...skills, ...skillGachaItems];
+
+            const skill = allSkills.find(s => s.id === skillId);
+
+            alert(skill.name + "を装備しました！");
+        }
+
+        window.currencyGacha = async function () {
+
+            const btn = document.querySelector("#currency-gacha-screen .draw-btn");
+            btn.disabled = true;
+
+            try {
+
+                if (point < currencyGachaCost) {
+                    alert("pointが足りません");
+                    return;
+                }
+
+                point -= currencyGachaCost;
+
+                const rand = Math.random() * 100;
+
+                let total = 0;
+                let reward = null;
+
+                for (const currency of currencyGachaItems) {
+
+                    total += currency.chance;
+
+                    if (rand <= total) {
+                        reward = currency;
+                        break;
+                    }
+                }
+
+                if (!reward) return;
+
+                addCurrency(reward.type, reward.amount);
 
                 await saveProgress();
 
-                loadInventory();
+                alert(`${reward.name} を獲得！`);
+            } finally {
+                btn.disabled = false;
+            }
+        }
 
-                const allSkills = [...skills, ...skillGachaItems];
+        window.skillGacha = async function () {
 
-                const skill = allSkills.find(s => s.id === skillId);
+            const btn = document.querySelector("#skill-gacha-screen .draw-btn");
+            btn.disabled = true;
 
-                alert(skill.name + "を装備しました！");
+            try {
+
+                if (point < skillGachaCost) {
+                    alert("pointが足りません");
+                    return;
+                }
+
+                point -= skillGachaCost;
+                updatecurrencyUI();
+
+                let totalChance = 0;
+                for (const skill of skillGachaItems) {
+                    totalChance += rarityList[skill.rarity];
+                }
+
+                const rand = Math.random() * totalChance;
+                let total = 0;
+                let reward = null;
+
+                for (const skill of skillGachaItems) {
+                    total += rarityList[skill.rarity];
+                    if (rand <= total) {
+                        reward = skill;
+                        break;
+                    }
+                }
+                if (!reward) return;
+
+                if (!ownedSkills.includes(reward.id)) {
+                    ownedSkills.push(reward.id);
+                }
+
+                await saveProgress();
+
+                alert(`${reward.name}\nレア度： ${reward.rarity}\n${reward.description}`);
+
+            } finally {
+                btn.disabled = false;
+            }
+        };
+
+        document.addEventListener("keydown", async (e) => {
+
+            adminCode += e.key.toLowerCase();
+
+            if (adminCode.length > 5) {
+                adminCode = adminCode.slice(-5);
             }
 
-            window.currencyGacha = async function () {
+            if (adminCode === "admin") {
 
-                const btn = document.querySelector("#currency-gacha-screen .draw-btn");
-                btn.disabled = true;
+                adminCode = "";
 
-                try {
+                if (isAdmin) {
 
-                    if (point < currencyGachaCost) {
-                        alert("pointが足りません");
-                        return;
+                    const result = confirm("管理者を削除しますか？");
+
+                    if (result) {
+
+                        isAdmin = false;
+
+                        localStorage.removeItem("isAdmin");
+
+                        location.reload();
                     }
 
-                    point -= currencyGachaCost;
-
-                    const rand = Math.random() * 100;
-
-                    let total = 0;
-                    let reward = null;
-
-                    for (const currency of currencyGachaItems) {
-
-                        total += currency.chance;
-
-                        if (rand <= total) {
-                            reward = currency;
-                            break;
-                        }
-                    }
-
-                    if (!reward) return;
-
-                    addCurrency(reward.type, reward.amount);
-
-                    await saveProgress();
-
-                    alert(`${reward.name} を獲得！`);
-                } finally {
-                    btn.disabled = false;
-                }
-            }
-
-            window.skillGacha = async function () {
-
-                const btn = document.querySelector("#skill-gacha-screen .draw-btn");
-                btn.disabled = true;
-
-                try {
-
-                    if (point < skillGachaCost) {
-                        alert("pointが足りません");
-                        return;
-                    }
-
-                    point -= skillGachaCost;
-                    updatecurrencyUI();
-
-                    let totalChance = 0;
-                    for (const skill of skillGachaItems) {
-                        totalChance += rarityList[skill.rarity];
-                    }
-
-                    const rand = Math.random() * totalChance;
-                    let total = 0;
-                    let reward = null;
-
-                    for (const skill of skillGachaItems) {
-                        total += rarityList[skill.rarity];
-                        if (rand <= total) {
-                            reward = skill;
-                            break;
-                        }
-                    }
-                    if (!reward) return;
-
-                    if (!ownedSkills.includes(reward.id)) {
-                        ownedSkills.push(reward.id);
-                    }
-
-                    await saveProgress();
-
-                    alert(`${reward.name}\nレア度： ${reward.rarity}\n${reward.description}`);
-
-                } finally {
-                    btn.disabled = false;
-                }
-            };
-
-            document.addEventListener("keydown", async (e) => {
-
-                adminCode += e.key.toLowerCase();
-
-                if (adminCode.length > 5) {
-                    adminCode = adminCode.slice(-5);
+                    return;
                 }
 
-                if (adminCode === "admin") {
+                const password = prompt("Please enter administrator password");
 
-                    adminCode = "";
+                if (password === null) {
+                    return;
+                }
 
-                    if (isAdmin) {
+                const docRef = doc(db, "admin", "password");
+                const docSnap = await getDoc(docRef);
 
-                        const result = confirm("管理者を削除しますか？");
-
-                        if (result) {
-
-                            isAdmin = false;
-
-                            localStorage.removeItem("isAdmin");
-
-                            location.reload();
-                        }
-
-                        return;
-                    }
-
-                    const password = prompt("Please enter administrator password");
+                if (docSnap.exists()) {
+                    const realPassword = docSnap.data().password;
 
                     if (password === null) {
                         return;
                     }
 
-                    const docRef = doc(db, "admin", "password");
-                    const docSnap = await getDoc(docRef);
+                    if (password === realPassword) {
 
-                    if (docSnap.exists()) {
-                        const realPassword = docSnap.data().password;
+                        location.reload();
 
-                        if (password === null) {
-                            return;
-                        }
+                        isAdmin = true;
 
-                        if (password === realPassword) {
-                            
-                            location.reload();
+                        localStorage.setItem("isAdmin", "true");
 
-                            isAdmin = true;
+                        document.querySelector(".admin-btn").style.display = "flex";
 
-                            localStorage.setItem("isAdmin", "true");
-
-                            document.querySelector(".admin-btn").style.display = "flex";
-
-                            document.querySelector(".admin-confirmation").style.display = "flex";
-                        } else {
-                            alert("NO")
-                        }
+                        document.querySelector(".admin-confirmation").style.display = "flex";
+                    } else {
+                        alert("NO")
                     }
                 }
-            });
+            }
+        });
 
     </script>
 </body>
