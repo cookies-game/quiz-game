@@ -652,10 +652,24 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            width: 100%;
             padding-bottom: 20px;
         }
 
+        .user-info {
+            flex: 1;
+        }
+
+        .user-list {
+            width: 100%;
+        }
+
+        .users {
+            width: 100%;
+        }
+
         .copy-btn {
+            margin-left: auto;
             background: none;
             border: none;
             cursor: pointer;
@@ -668,6 +682,27 @@
 
         .copy-btn:active {
             transform: scale(1);
+        }
+
+        .delete-area {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .delete-user-id {
+            background: white;
+            font-size: 15px;
+            padding: 8px;
+            border: 1px solid black;
+            border-radius: 15px;
+            width: 455px;
+        }
+
+        .delete-message {
+            font-size: 15px;
+            font-weight: bold;
+            color: rgb(255, 60, 60);
         }
 
         .admin-close {
@@ -1410,6 +1445,7 @@
         }
 
         body.dark .setting-box,
+        body.dark .admin-box,
         body.dark .subj-box,
         body.dark .result-box,
         body.dark .shop-box,
@@ -1442,7 +1478,9 @@
         body.dark .admin-choice-count,
         body.dark .admin-save-btn,
         body.dark .hacking-gem-chance,
+        body.dark .show-users-btn,
         body.dark .hacking-save-btn,
+        body.dark .delete-user-id,
         body.dark .buy-btn,
         body.dark .equipped-btn,
         body.dark .passive-btn,
@@ -1471,6 +1509,9 @@
         body.dark .admin-save-btn,
         body.dark .hacking-gem-chance,
         body.dark .hacking-save-btn,
+        body.dark .admin-box,
+        body.dark .show-users-btn,
+        body.dark .delete-user-id,
         body.dark .save-btn2,
         body.dark .start-btn,
         body.dark .shop-btn,
@@ -1510,6 +1551,7 @@
         body.dark .currency-gacha:hover,
         body.dark .admin-save-btn:hover,
         body.dark .hacking-save-btn:hover,
+        body.dark .show-users-btn:hover,
         body.dark .skill-gacha:hover,
         body.dark .home-btn4:hover,
         body.dark .draw-btn:hover,
@@ -1518,6 +1560,14 @@
         body.dark .buy-btn:hover {
             border-color: var(--hover-color);
             box-shadow: 0 0 12px var(--hover-color);
+        }
+
+        body.dark .admin-close {
+            color: white;
+        }
+
+        body.dark .copy-btn .material-symbols-outlined {
+            color: white;
         }
 
         body.dark .tab {
@@ -2033,6 +2083,16 @@
                 <div class="user-list"></div>
             </div>
 
+            <p>IDごと削除</p>
+
+            <div class="delete-area">
+
+                <input type="text" class="delete-user-id" placeholder="削除するユーザーのuserIDを入力">
+    
+            </div>
+
+            <p class="delete-message"></p>
+
         </div>
 
     </div>
@@ -2048,7 +2108,8 @@
             setDoc,
             getDoc,
             getDocs,
-            collection
+            collection,
+            deleteDoc
         } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
         // TODO: Add SDKs for Firebase products that you want to use
         // https://firebase.google.com/docs/web/setup#available-libraries
@@ -3307,22 +3368,49 @@
             settingscreen.classList.remove("active");
         }
 
-        window.openAdminPanel = function () {
+        window.openAdminPanel = async function () {
+
+            const docRef = doc(db, "admin", "config");
+            const docSnap = await getDoc(docRef);
+
+            if (!docSnap.exists()) {
+                alert("管理者設定が見つかりません");
+                return;
+            }
+
+            const adminIds = docSnap.data().admin_ids || [];
+
+            if (!adminIds.includes(userID)) {
+                alert("管理者権限がありません");
+                return;
+            }
 
             document.querySelector(".adminPanel").style.display = "flex";
-        }
+        };
 
         window.closeAdminPanel = function () {
             document.querySelector(".adminPanel").style.display = "none";
             document.querySelector(".users").style.display = "none";
+
+            document.querySelector(".show-users-btn").textContent = "ユーザー一覧";
         }
 
-        window.showUsers = async function() {
+        window.showUsers = async function () {
 
             const usersDiv = document.querySelector(".users");
             const userList = document.querySelector(".user-list");
+            const btn = document.querySelector(".show-users-btn");
+
+            if (usersDiv.style.display === "flex") {
+
+                usersDiv.style.display = "none";
+                btn.textContent = "ユーザー一覧"
+
+                return;
+            }
 
             usersDiv.style.display = "flex";
+            btn.textContent = "閉じる";
 
             userList.innerHTML = "読み込み中…";
 
@@ -3337,7 +3425,7 @@
                 userList.innerHTML += `
                     <div class="user-card">
 
-                        <div>
+                        <div class="user-info">
                             <p>名前：${data.name || "未設定"}</p>
                             <p>ID：${userDoc.id}</p>
                         </div>
@@ -3351,7 +3439,7 @@
             });
         }
 
-        window.copyUserID = async function(id) {
+        window.copyUserID = async function (id) {
 
             try {
 
@@ -3363,6 +3451,55 @@
                 alert("コピーに失敗しました");
             }
         }
+
+        window.deleteUserByID = async function () {
+
+            const input = document.querySelector(".delete-user-id");
+            const message = document.querySelector(".delete-message");
+            
+            const userID = input.value.trim();
+            
+            if (!userID) return;
+
+            try {
+
+                const docRef = doc(db, "users", userID);
+                const docSnap = await getDoc(docRef);
+
+                if (!docSnap.exists()) {
+
+                    message.textContent = "「" + userID + "」" + "は存在しません";
+
+                    setTimeout(() => {
+                        message.textContent = "";
+                    }, 1500);
+
+                    return;
+                }
+
+                const ok = confirm(userID + "を削除しますか？");
+
+                if (!ok) return;
+
+                await deleteDoc(doc(db, "users", userID));
+
+                alert("削除しました");
+
+                document.querySelector(".delete-user-id").value = "";
+            } catch (error) {
+
+                console.error(error);
+
+                alert("削除に失敗しました");
+            }
+        }
+
+        document.querySelector(".delete-user-id").addEventListener("keydown", (e) => {
+
+            if (e.key === "Enter") {
+                deleteUserByID();
+            }
+        });
 
         const adminSaveBtn = document.querySelector(".admin-save-btn");
 
@@ -3793,7 +3930,7 @@
                     return;
                 }
 
-                const docRef = doc(db, "admin", "password");
+                const docRef = doc(db, "admin-pass", "password");
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists()) {
