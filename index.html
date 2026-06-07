@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
     <title>Quiz Game</title>
 
     <style>
@@ -593,6 +594,103 @@
             text-shadow: 0 0 10px rgb(70, 255, 70);
         }
 
+        .adminPanel {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 9998;
+        }
+
+        .admin-box {
+            width: 500px;
+            height: 550px;
+            background: white;
+            border: 2px solid black;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 20px;
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+            position: relative;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .admin-box::-webkit-scrollbar {
+            display: none;
+        }
+
+        .admin-panel-title {
+            align-self: center;
+            font-size: 30px;
+        }
+
+        .show-users-btn {
+            background: white;
+            border: 1px solid black;
+            font-size: 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .show-users-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgb(45, 45, 45);
+        }
+
+        .show-users-btn:active {
+            transform: scale(1);
+            box-shadow: none;
+        }
+
+        .user-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+        }
+
+        .copy-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .copy-btn:hover {
+            transform: scale(1.3);
+        }
+
+        .copy-btn:active {
+            transform: scale(1);
+        }
+
+        .admin-close {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 60px;
+            height: 60px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 35px;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .admin-close:hover {
+            color: white;
+            background: rgb(255, 50, 50);
+        }
+
         #setting-screen {
             position: absolute;
             inset: 0;
@@ -617,7 +715,7 @@
             flex-direction: column;
             gap: 15px;
             padding: 20px;
-            box-shadow: 5px 5px 15px rgb(45, 45, 45);
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
             z-index: 9999;
             position: relative;
             overflow-y: auto;
@@ -1915,19 +2013,30 @@
 
     </div>
 
-    <div class="adminPanel">
+    <div class="adminPanel" style="display: none;">
 
-        <button class="show-users-btn" onclick="showUsers()">
-            ユーザー一覧
-        </button>
+        <div class="admin-box">
+
+            <h2 class="admin-panel-title">
+                管理パネル
+            </h2>
+
+            <button class="show-users-btn" onclick="showUsers()">
+                ユーザー一覧
+            </button>
+
+            <button class="admin-close" onclick="closeAdminPanel()">
+                ✘
+            </button>
+
+            <div class="users" style="display: none;">
+                <div class="user-list"></div>
+            </div>
+
+        </div>
 
     </div>
 
-    <div class="users" style="display: none;">
-
-        <div class="user-list"></div>
-
-    </div>
 
     <script type="module">
 
@@ -3198,9 +3307,61 @@
             settingscreen.classList.remove("active");
         }
 
-        window.openAdminPanel = function() {
+        window.openAdminPanel = function () {
 
             document.querySelector(".adminPanel").style.display = "flex";
+        }
+
+        window.closeAdminPanel = function () {
+            document.querySelector(".adminPanel").style.display = "none";
+            document.querySelector(".users").style.display = "none";
+        }
+
+        window.showUsers = async function() {
+
+            const usersDiv = document.querySelector(".users");
+            const userList = document.querySelector(".user-list");
+
+            usersDiv.style.display = "flex";
+
+            userList.innerHTML = "読み込み中…";
+
+            const snapshot = await getDocs(collection(db, "users"));
+
+            userList.innerHTML = "";
+
+            snapshot.forEach((userDoc) => {
+
+                const data = userDoc.data();
+
+                userList.innerHTML += `
+                    <div class="user-card">
+
+                        <div>
+                            <p>名前：${data.name || "未設定"}</p>
+                            <p>ID：${userDoc.id}</p>
+                        </div>
+
+                        <button class="copy-btn" onclick="copyUserID('${userDoc.id}')">
+                            <span class="material-symbols-outlined">content_copy</span>
+                        </button>
+
+                    </div>
+                `;
+            });
+        }
+
+        window.copyUserID = async function(id) {
+
+            try {
+
+                await navigator.clipboard.writeText(id);
+
+                alert("コピーしました");
+            } catch {
+
+                alert("コピーに失敗しました");
+            }
         }
 
         const adminSaveBtn = document.querySelector(".admin-save-btn");
