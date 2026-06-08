@@ -554,6 +554,27 @@
             text-shadow: 2px 2px 6px rgb(45, 45, 45);
         }
 
+        .user-btn {
+            font-size: 32px;
+            background: none;
+            border: none;
+            position: static;
+            transform: scale(1);
+            cursor: pointer;
+            transition: 0.3s;
+            text-shadow: 2px 2px 6px rgb(45, 45, 45);
+        }
+
+        .user-btn:hover {
+            transform: scale(1.3);
+            text-shadow: 3px 3px 8px rgb(80, 80, 80);
+        }
+
+        .user-btn:active {
+            transform: scale(1);
+            text-shadow: 2px 2px 6px rgb(45, 45, 45);
+        }
+
         .version {
             position: fixed;
             bottom: 10px;
@@ -990,6 +1011,57 @@
 
         .passive-skill-description {
             font-size: 15px;
+        }
+
+        .rogin-users {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 9998;
+        }
+
+        .user-box {
+            width: 500px;
+            height: 550px;
+            background: white;
+            border: 2px solid black;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 20px;
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+            position: relative;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .userList {
+            font-size: 18px;
+        }
+
+        .user-close {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 60px;
+            height: 60px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 35px;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-close:hover {
+            color: white;
+            background: rgb(255, 50, 50);
         }
 
         #subj-select-screen {
@@ -1451,6 +1523,7 @@
         body.dark .shop-box,
         body.dark .skill-card,
         body.dark .inventory-box,
+        body.dark .user-box,
         body.dark .inventory-skill,
         body.dark .gacha-select-box,
         body.dark .gacha-box,
@@ -1520,6 +1593,7 @@
         body.dark .shop-box,
         body.dark .skill-card,
         body.dark .inventory-box,
+        body.dark .user-box,
         body.dark .inventory-skill,
         body.dark .buy-btn,
         body.dark .currency-gacha,
@@ -1624,6 +1698,10 @@
             color: white;
         }
 
+        body.dark .user-close {
+            color: white;
+        }
+
         body.dark .equipped-btn:disabled {
             background: #707070;
             border: 2px solid #707070;
@@ -1665,6 +1743,10 @@
 
             <button class="inventory-btn" onclick="openInventory()">
                 🎒
+            </button>
+
+            <button class="user-btn" onclick="openUsers()">
+                👥
             </button>
 
             <div class="currencies">
@@ -1709,7 +1791,31 @@
 
     </header>
 
+    <div class="rogin-users" style="display: none;">
 
+        <div class="user-box">
+
+            <div class="tabs">
+
+                <button class="tab active" data-action="showOnlineUsers">
+                    現在ログイン中
+                </button>
+
+                <button class="tab" data-action="showTodayUsers">
+                    今日ログイン
+                </button>
+
+            </div>
+
+            <div class="userList"></div>
+
+            <button class="user-close" onclick="closeUsers()">
+                ✘
+            </button>
+
+        </div>
+
+    </div>
 
     <p class="version">
         ver.3.4.1
@@ -1937,11 +2043,11 @@
 
             <div class="tabs">
 
-                <button class="tab active">
+                <button class="tab active" data-action="loadInventory">
                     スキル
                 </button>
 
-                <button class="tab">
+                <button class="tab" data-action="loadPassiveInventory">
                     パッシブ
                 </button>
 
@@ -2088,7 +2194,7 @@
             <div class="delete-area">
 
                 <input type="text" class="delete-user-id" placeholder="削除するユーザーのuserIDを入力">
-    
+
             </div>
 
             <p class="delete-message"></p>
@@ -2109,7 +2215,11 @@
             getDoc,
             getDocs,
             collection,
-            deleteDoc
+            deleteDoc,
+            query,
+            where,
+            updateDoc,
+            onSnapshot
         } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
         // TODO: Add SDKs for Firebase products that you want to use
         // https://firebase.google.com/docs/web/setup#available-libraries
@@ -2214,6 +2324,17 @@
 
             await createUserDataIfFirstTime();
 
+            await updateDoc(doc(db, "users", userID), {
+                online: true,
+                lastLogin: Date.now()
+            });
+
+            window.addEventListener("beforeunload", async () => {
+                await updateDoc(doc(db, "users", userID), {
+                    online: false
+                });
+            });
+
             await loadName();
 
             updateLevelUI();
@@ -2242,25 +2363,27 @@
             }, 500);
         };
 
-        const tabs = document.querySelectorAll(".tab");
+        document.querySelectorAll(".tabs").forEach(tabGroup => {
 
-        tabs.forEach((tab, index) => {
+            const tabs = tabGroup.querySelectorAll(".tab");
 
-            tab.onclick = () => {
+            tabs.forEach(tab => {
 
-                tabs.forEach(t => t.classList.remove("active"));
+                tab.onclick = () => {
 
-                tab.classList.add("active");
+                    tabs.forEach(t => t.classList.remove("active"));
+                    tab.classList.add("active");
 
-                if (index === 0) {
-                    loadInventory();
-                } else if (index === 1) {
-                    loadPassiveInventory();
-                }
-            };
+                    const action = tab.dataset.action;
+
+                    if (typeof window[action] === "function") {
+                        window[action]();
+                    }
+                };
+            });
         });
 
-        function loadPassiveInventory() {
+        window.loadPassiveInventory = function () {
 
             const container = document.querySelector(".skills-container");
 
@@ -3373,11 +3496,6 @@
             const docRef = doc(db, "admin", "config");
             const docSnap = await getDoc(docRef);
 
-            if (!docSnap.exists()) {
-                alert("管理者設定が見つかりません");
-                return;
-            }
-
             const adminIds = docSnap.data().admin_ids || [];
 
             if (!adminIds.includes(userID)) {
@@ -3414,29 +3532,31 @@
 
             userList.innerHTML = "読み込み中…";
 
-            const snapshot = await getDocs(collection(db, "users"));
+            onSnapshot(collection(db, "users"), (snapshot) => {
 
-            userList.innerHTML = "";
-
-            snapshot.forEach((userDoc) => {
-
-                const data = userDoc.data();
-
-                userList.innerHTML += `
-                    <div class="user-card">
-
-                        <div class="user-info">
-                            <p>名前：${data.name || "未設定"}</p>
-                            <p>ID：${userDoc.id}</p>
+                userList.innerHTML = "";
+    
+                snapshot.forEach((userDoc) => {
+    
+                    const data = userDoc.data();
+    
+                    userList.innerHTML += `
+                        <div class="user-card">
+    
+                            <div class="user-info">
+                                <p>名前：${data.name || "未設定"}</p>
+                                <p>ID：${userDoc.id}</p>
+                            </div>
+    
+                            <button class="copy-btn" onclick="copyUserID('${userDoc.id}')">
+                                <span class="material-symbols-outlined">content_copy</span>
+                            </button>
+    
                         </div>
+                    `;
+                });
+            })
 
-                        <button class="copy-btn" onclick="copyUserID('${userDoc.id}')">
-                            <span class="material-symbols-outlined">content_copy</span>
-                        </button>
-
-                    </div>
-                `;
-            });
         }
 
         window.copyUserID = async function (id) {
@@ -3456,9 +3576,9 @@
 
             const input = document.querySelector(".delete-user-id");
             const message = document.querySelector(".delete-message");
-            
+
             const userID = input.value.trim();
-            
+
             if (!userID) return;
 
             try {
@@ -3571,6 +3691,81 @@
         window.closeInventory = function () {
 
             inventoryscreen.classList.remove("active");
+        }
+
+        window.openUsers = function () {
+
+            document.querySelector(".rogin-users").style.display = "flex";
+
+            showOnlineUsers();
+        }
+
+        window.closeUsers = function () {
+            document.querySelector(".rogin-users").style.display = "none";
+        }
+
+        window.showOnlineUsers = async function () {
+
+            const list = document.querySelector(".userList");
+            list.innerHTML = "読み込み中…";
+
+            const q = query(
+                collection(db, "users"),
+                where("online", "==", true)
+            );
+
+            onSnapshot(q, (snap) => {
+
+                list.innerHTML = "";
+
+                snap.forEach(doc => {
+    
+                    const data = doc.data();
+    
+                    const name =
+                        doc.id === userID
+                            ? `${data.name}（あなた）`
+                            : (data.name || doc.id);
+    
+                    list.innerHTML += `
+                        <div>${name}</div>
+                    `;
+                });
+            });
+        }
+
+        window.showTodayUsers = async function () {
+
+            const list = document.querySelector(".userList");
+            list.innerHTML = "読み込み中…";
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const q = query(
+                collection(db, "users"),
+                where("lastLogin", ">=", today.getTime())
+            );
+
+            onSnapshot(q, (snap) => {
+
+                list.innerHTML = "";
+    
+                snap.forEach(Doc => {
+    
+                    const data = Doc.data();
+    
+                    const name =
+                        Doc.id === userID
+                            ? `${data.name}（あなた）`
+                            : data.name;
+    
+                    list.innerHTML += `
+                        <div>${name}</div>
+                    `;
+                });
+            });
+
         }
 
         // ユーザー名保存処理
@@ -3738,7 +3933,7 @@
             document.querySelector(".shop-gem-text").textContent = gem;
         }
 
-        function loadInventory() {
+        window.loadInventory = function () {
 
             const container = document.querySelector(".skills-container");
 
