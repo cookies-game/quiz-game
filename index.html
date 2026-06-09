@@ -28,6 +28,36 @@
             display: flex;
         }
 
+        .message-list {
+            font-size: 35px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 100000;
+        }
+
+        .message-list:empty {
+            display: none;
+        }
+
+        .message-card {
+            display: inline-block;
+            min-width: 60px;
+            max-width: 500px;
+            color: black;
+            background: white;
+            border: 2px solid black;
+            white-space: pre-wrap;
+            text-align: center;
+            opacity: 1;
+            transition: opacity 1s ease;
+        }
+
+        .message-card.fade-out {
+            opacity: 0;
+        }
+
         .buttons {
             position: absolute;
             top: 50%;
@@ -717,13 +747,57 @@
             padding: 8px;
             border: 1px solid black;
             border-radius: 15px;
-            width: 455px;
+            width: 456.8px;
         }
 
         .delete-message {
             font-size: 15px;
             font-weight: bold;
             color: rgb(255, 60, 60);
+        }
+
+        .message-user-id {
+            background: white;
+            font-size: 15px;
+            padding: 8px;
+            border: 1px solid black;
+            border-radius: 15px;
+        }
+
+        .message-seconds {
+            background: white;
+            font-size: 15px;
+            padding: 8px;
+            border: 1px solid black;
+            border-radius: 15px;
+        }
+
+        .message-text {
+            resize: none;
+            background: white;
+            font-size: 15px;
+            padding: 8px;
+            border: 1px solid black;
+            border-radius: 15px;
+        }
+
+        .send-btn {
+            background: white;
+            border: 1px solid black;
+            font-size: 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgb(45, 45, 45);
+        }
+
+        .send-btn:active {
+            transform: scale(1);
+            box-shadow: none;
         }
 
         .admin-close {
@@ -1013,7 +1087,7 @@
             font-size: 15px;
         }
 
-        .rogin-users {
+        .login-users {
             position: fixed;
             inset: 0;
             background: rgba(0, 0, 0, 0.5);
@@ -1554,6 +1628,10 @@
         body.dark .show-users-btn,
         body.dark .hacking-save-btn,
         body.dark .delete-user-id,
+        body.dark .message-user-id,
+        body.dark .message-seconds,
+        body.dark .message-text,
+        body.dark .send-btn,
         body.dark .buy-btn,
         body.dark .equipped-btn,
         body.dark .passive-btn,
@@ -1585,6 +1663,10 @@
         body.dark .admin-box,
         body.dark .show-users-btn,
         body.dark .delete-user-id,
+        body.dark .message-user-id,
+        body.dark .message-seconds,
+        body.dark .message-text,
+        body.dark .send-btn,
         body.dark .save-btn2,
         body.dark .start-btn,
         body.dark .shop-btn,
@@ -1628,12 +1710,18 @@
         body.dark .show-users-btn:hover,
         body.dark .skill-gacha:hover,
         body.dark .home-btn4:hover,
+        body.dark .send-btn:hover,
         body.dark .draw-btn:hover,
         body.dark .home-btn5:hover,
         body.dark .admin-btn:hover,
         body.dark .buy-btn:hover {
             border-color: var(--hover-color);
             box-shadow: 0 0 12px var(--hover-color);
+        }
+
+        body.dark .message-card {
+            color: white;
+            background: black;
         }
 
         body.dark .admin-close {
@@ -1791,7 +1879,7 @@
 
     </header>
 
-    <div class="rogin-users" style="display: none;">
+    <div class="login-users" style="display: none;">
 
         <div class="user-box">
 
@@ -1826,6 +1914,8 @@
     </p>
 
     <div id="home-screen" class="screen active">
+
+        <div class="message-list"></div>
 
         <button class="admin-btn" onclick="openAdminPanel()" style="display: none;">
             管理
@@ -2181,9 +2271,6 @@
                 ユーザー一覧
             </button>
 
-            <button class="admin-close" onclick="closeAdminPanel()">
-                ✘
-            </button>
 
             <div class="users" style="display: none;">
                 <div class="user-list"></div>
@@ -2191,13 +2278,20 @@
 
             <p>IDごと削除</p>
 
-            <div class="delete-area">
-
-                <input type="text" class="delete-user-id" placeholder="削除するユーザーのuserIDを入力">
-
-            </div>
+            <input type="text" class="delete-user-id" placeholder="削除するユーザーのuserIDを入力">
 
             <p class="delete-message"></p>
+
+            <p>メッセージ送信</p>
+
+            <input type="text" class="message-user-id" placeholder="userID指定 空欄でグローバル">
+            <input type="number" class="message-seconds" min="0.1" max="20" value="3" placeholder="表示秒数を指定">
+            <textarea class="message-text" rows="2" placeholder="送信するメッセージを入力"></textarea>
+            <button class="send-btn" onclick="sendMessage()">送信</button>
+
+            <button class="admin-close" onclick="closeAdminPanel()">
+                ✘
+            </button>
 
         </div>
 
@@ -2219,7 +2313,8 @@
             query,
             where,
             updateDoc,
-            onSnapshot
+            onSnapshot,
+            addDoc
         } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
         import { getDatabase, ref, set, onDisconnect, onValue }
@@ -2279,8 +2374,6 @@
 
                     ownedSkills: []
                 });
-
-                console.log("初回ユーザーデータ作成");
             }
         }
 
@@ -2343,14 +2436,50 @@
 
             await updateDoc(doc(db, "users", userID), {
                 lastSeen: Date.now(),
-                lastrogin: Date.now()
+                lastLogin: Date.now()
             });
 
             await loadName();
 
+            cleanupMessages();
+
+            setInterval(cleanupMessages, 1000);
+
+            onSnapshot(collection(db, "messages"), (snapshot) => {
+
+                const list = document.querySelector(".message-list");
+
+                list.innerHTML = "";
+
+                snapshot.forEach(async (messageDoc) => {
+
+                    const msg = messageDoc.data();
+
+                    if (Date.now() > msg.expireAt) {
+                        await deleteDoc(doc(db, "messages", messageDoc.id));
+                        return;
+                    }
+
+                    if (msg.userID && msg.userID !== userID) return;
+
+                    const card = document.createElement("div");
+                    card.className = "message-card";
+                    card.textContent = msg.text;
+
+                    list.appendChild(card);
+
+                    const fadeTime = msg.expireAt - Date.now() - 1000;
+
+                    setTimeout(() => {
+                        card.classList.add("fade-out");
+                    }, fadeTime);
+                });
+            });
+
             updateLevelUI();
 
             updatecurrencyUI();
+
 
             const savedTheme = localStorage.getItem("theme");
 
@@ -2373,6 +2502,20 @@
                 loadingscreen.style.display = "none";
             }, 500);
         };
+
+        async function cleanupMessages() {
+
+            const snapshot = await getDocs(collection(db, "messages"));
+
+            snapshot.forEach(async (messageDoc) => {
+
+                const msg = messageDoc.data();
+
+                if (Date.now() > msg.expireAt) {
+                    await deleteDoc(doc(db, "messages", messageDoc.id));
+                }
+            });
+        }
 
         document.querySelectorAll(".tabs").forEach(tabGroup => {
 
@@ -3601,20 +3744,16 @@
 
             if (userIDs.length === 0) return;
 
-            const ok = confirm(userIDs.join("、 ") + "を削除しますか？");
-            
-            if (!ok) return;
-
             try {
 
-                await Promise.all(userIDs.map(async (userID) => {
+                for (const id of userIDs) {
 
-                    const docRef = doc(db, "users", userID);
+                    const docRef = doc(db, "users", id);
                     const docSnap = await getDoc(docRef);
 
                     if (!docSnap.exists()) {
 
-                        message.textContent = "「" + userID + "」" + "は存在しません";
+                        message.textContent = `「${id}」は存在しません`;
 
                         setTimeout(() => {
                             message.textContent = "";
@@ -3622,14 +3761,22 @@
 
                         return;
                     }
+                }
 
-                    await deleteDoc(doc(db, "users", userID));
-                }));
+                const ok = confirm(userIDs.join("、 ") + "を削除しますか？");
+
+                if (!ok) return;
+
+                await Promise.all(
+                    userIDs.map(id =>
+                        deleteDoc(doc(db, "users", id))
+                    )
+                );
 
                 alert("削除しました");
 
-                document.querySelector(".delete-user-id").value = "";
-            
+                input.value = "";
+
             } catch (error) {
 
                 console.error(error);
@@ -3658,6 +3805,36 @@
 
                 e.preventDefault();
             }
+        });
+
+        window.sendMessage = async function () {
+
+            const targetUserID = document.querySelector(".message-user-id").value.trim();
+            let seconds = Number(document.querySelector(".message-seconds").value);
+            if (seconds < 2) seconds = 2;
+            console.log(seconds);
+            const text = document.querySelector(".message-text").value.trim();
+
+            if (!text) return;
+
+            await addDoc(collection(db, "messages"), {
+                userID: targetUserID || null,
+                text,
+                expireAt: Date.now() + (seconds * 1000),
+                createdAt: Date.now()
+            });
+
+            document.querySelector(".message-user-id").value = "";
+            document.querySelector(".message-seconds").value = 3;
+            document.querySelector(".message-text").value = "";
+
+            alert("送信しました");
+        };
+
+        const secondsInput = document.querySelector(".message-seconds");
+        secondsInput.addEventListener("input", () => {
+
+            if (secondsInput.value > 20) secondsInput.value = 20;
         });
 
         const adminSaveBtn = document.querySelector(".admin-save-btn");
@@ -3734,13 +3911,13 @@
 
         window.openUsers = function () {
 
-            document.querySelector(".rogin-users").style.display = "flex";
+            document.querySelector(".login-users").style.display = "flex";
 
             showOnlineUsers();
         }
 
         window.closeUsers = function () {
-            document.querySelector(".rogin-users").style.display = "none";
+            document.querySelector(".login-users").style.display = "none";
         }
 
         window.showOnlineUsers = function () {
@@ -3783,7 +3960,7 @@
 
             const q = query(
                 collection(db, "users"),
-                where("lastrogin", ">=", today.getTime())
+                where("lastLogin", ">=", today.getTime())
             );
 
             onSnapshot(q, (snap) => {
