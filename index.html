@@ -2342,7 +2342,8 @@
             onDisconnect(statusRef).remove();
 
             await updateDoc(doc(db, "users", userID), {
-                lastSeen: Date.now()
+                lastSeen: Date.now(),
+                lastrogin: Date.now()
             });
 
             await loadName();
@@ -3782,7 +3783,7 @@
 
             const q = query(
                 collection(db, "users"),
-                where("lastLogin", ">=", today.getTime())
+                where("lastrogin", ">=", today.getTime())
             );
 
             onSnapshot(q, (snap) => {
