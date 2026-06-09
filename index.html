@@ -2221,6 +2221,10 @@
             updateDoc,
             onSnapshot
         } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+        import { getDatabase, ref, set, onDisconnect, onValue }
+            from "https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
+
         // TODO: Add SDKs for Firebase products that you want to use
         // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -2233,7 +2237,8 @@
             storageBucket: "quiz-game-14052.firebasestorage.app",
             messagingSenderId: "685737591431",
             appId: "1:685737591431:web:16ec4fd2781948337b6e22",
-            measurementId: "G-3HDMSE6ZYK"
+            measurementId: "G-3HDMSE6ZYK",
+            databaseURL: "https://quiz-game-14052-default-rtdb.asia-southeast1.firebasedatabase.app"
         };
 
         function createuserID() {
@@ -2283,6 +2288,8 @@
         const firebaseApp = initializeApp(firebaseConfig);
         const db = getFirestore(firebaseApp);
 
+        const rtdb = getDatabase(firebaseApp);
+
         const homescreen = document.getElementById("home-screen");
         const subjscreen = document.getElementById("subj-select-screen");
         const quizscreen = document.getElementById("quiz-screen");
@@ -2324,15 +2331,18 @@
 
             await createUserDataIfFirstTime();
 
-            await updateDoc(doc(db, "users", userID), {
+            const statusRef = ref(rtdb, "status/" + userID);
+
+            await set(statusRef, {
+                name: userName,
                 online: true,
-                lastLogin: Date.now()
+                lastChanged: Date.now()
             });
 
-            window.addEventListener("beforeunload", async () => {
-                await updateDoc(doc(db, "users", userID), {
-                    online: false
-                });
+            onDisconnect(statusRef).remove();
+
+            await updateDoc(doc(db, "users", userID), {
+                lastSeen: Date.now()
             });
 
             await loadName();
@@ -3051,6 +3061,8 @@
         let adminCode = "";
         let isAdmin = localStorage.getItem("isAdmin") === "true";
 
+        let onlineUnsub = null;
+
         function addCurrency(type, amount) {
 
             if (type === "coin") {
@@ -3535,11 +3547,11 @@
             onSnapshot(collection(db, "users"), (snapshot) => {
 
                 userList.innerHTML = "";
-    
+
                 snapshot.forEach((userDoc) => {
-    
+
                     const data = userDoc.data();
-    
+
                     userList.innerHTML += `
                         <div class="user-card">
     
@@ -3581,31 +3593,42 @@
 
             if (!userID) return;
 
+            const userIDs = userID
+                .split(/[,]/)
+                .map(id => id.trim())
+                .filter(Boolean);
+
+            if (userIDs.length === 0) return;
+
+            const ok = confirm(userIDs.join("、 ") + "を削除しますか？");
+            
+            if (!ok) return;
+
             try {
 
-                const docRef = doc(db, "users", userID);
-                const docSnap = await getDoc(docRef);
+                await Promise.all(userIDs.map(async (userID) => {
 
-                if (!docSnap.exists()) {
+                    const docRef = doc(db, "users", userID);
+                    const docSnap = await getDoc(docRef);
 
-                    message.textContent = "「" + userID + "」" + "は存在しません";
+                    if (!docSnap.exists()) {
 
-                    setTimeout(() => {
-                        message.textContent = "";
-                    }, 1500);
+                        message.textContent = "「" + userID + "」" + "は存在しません";
 
-                    return;
-                }
+                        setTimeout(() => {
+                            message.textContent = "";
+                        }, 1500);
 
-                const ok = confirm(userID + "を削除しますか？");
+                        return;
+                    }
 
-                if (!ok) return;
-
-                await deleteDoc(doc(db, "users", userID));
+                    await deleteDoc(doc(db, "users", userID));
+                }));
 
                 alert("削除しました");
 
                 document.querySelector(".delete-user-id").value = "";
+            
             } catch (error) {
 
                 console.error(error);
@@ -3618,6 +3641,21 @@
 
             if (e.key === "Enter") {
                 deleteUserByID();
+            }
+
+            if (e.key === "Enter" && e.ctrlKey) {
+
+                const start = input.selectionStart;
+                const end = input.selectionEnd;
+
+                input.value =
+                    input.value.substring(0, start) +
+                    "\n" +
+                    input.value.substring(end);
+
+                input.selectionStart = input.selectionEnd = start + 1;
+
+                e.preventDefault();
             }
         });
 
@@ -3704,35 +3742,35 @@
             document.querySelector(".rogin-users").style.display = "none";
         }
 
-        window.showOnlineUsers = async function () {
+        window.showOnlineUsers = function () {
 
             const list = document.querySelector(".userList");
             list.innerHTML = "読み込み中…";
 
-            const q = query(
-                collection(db, "users"),
-                where("online", "==", true)
-            );
+            const statusRef = ref(rtdb, "status");
 
-            onSnapshot(q, (snap) => {
+            onValue(statusRef, (snapshot) => {
 
                 list.innerHTML = "";
 
-                snap.forEach(doc => {
-    
-                    const data = doc.data();
-    
+                snapshot.forEach((child) => {
+
+                    const data = child.val();
+
+                    if (!data) return;
+
                     const name =
-                        doc.id === userID
+                        child.key === userID
                             ? `${data.name}（あなた）`
-                            : (data.name || doc.id);
-    
-                    list.innerHTML += `
-                        <div>${name}</div>
-                    `;
+                            : data.name;
+
+                    const item = document.createElement("div");
+                    item.textContent = name;
+
+                    list.appendChild(item);
                 });
             });
-        }
+        };
 
         window.showTodayUsers = async function () {
 
@@ -3750,16 +3788,16 @@
             onSnapshot(q, (snap) => {
 
                 list.innerHTML = "";
-    
+
                 snap.forEach(Doc => {
-    
+
                     const data = Doc.data();
-    
+
                     const name =
                         Doc.id === userID
                             ? `${data.name}（あなた）`
                             : data.name;
-    
+
                     list.innerHTML += `
                         <div>${name}</div>
                     `;
