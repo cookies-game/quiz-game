@@ -31,7 +31,7 @@
         .message-list {
             font-size: 35px;
             position: absolute;
-            top: 50%;
+            top: 20%;
             left: 50%;
             transform: translate(-50%, -50%);
             z-index: 100000;
@@ -2465,7 +2465,16 @@
 
                     const card = document.createElement("div");
                     card.className = "message-card";
-                    card.textContent = msg.text;
+                    const sender = document.createElement("div");
+                    sender.textContent = `📢 ${msg.senderName || "不明"}`;
+
+                    const body = document.createElement("div");
+                    body.textContent = msg.text;
+                    body.style.textAlign = "center";
+
+                    card.innerHTML = "";
+                    card.appendChild(sender);
+                    card.appendChild(body);
 
                     list.appendChild(card);
 
@@ -4722,6 +4731,9 @@
             await addDoc(collection(db, "messages"), {
                 userID: targetUserID || null,
                 text,
+
+                senderName: userName,
+
                 expireAt: Date.now() + (seconds * 1000),
                 createdAt: Date.now()
             });
