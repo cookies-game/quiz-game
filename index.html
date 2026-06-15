@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&family=Jolly+Lodger&family=Kalam:wght@300;400;700&family=Playwrite+IE:wght@100..400&family=Shippori+Mincho&family=Zen+Maru+Gothic&display=swap" rel="stylesheet">
     <title>Quiz Game</title>
 
     <style>
@@ -13,6 +16,7 @@
             padding: 0;
             box-sizing: border-box;
             user-select: none;
+            font-family: "Zen Maru Gothic", sans-serif;
         }
 
         /* ===== ライトモード（デフォルト） ===== */
@@ -47,7 +51,6 @@
             max-width: 500px;
             color: black;
             background: white;
-            border: 2px solid black;
             white-space: pre-wrap;
             text-align: center;
             opacity: 1;
@@ -1722,7 +1725,7 @@
 
         body.dark .message-card {
             color: white;
-            background: black;
+            background: rgb(30, 30, 30);
         }
 
         body.dark .admin-close {
@@ -1906,6 +1909,8 @@
 
     </div>
 
+    <div class="message-list"></div>
+
     <p class="version">
         ver.3.4.1
     </p>
@@ -1915,8 +1920,6 @@
     </p>
 
     <div id="home-screen" class="screen active">
-
-        <div class="message-list"></div>
 
         <button class="admin-btn" onclick="openAdminPanel()" style="display: none;">
             管理
@@ -2465,15 +2468,12 @@
 
                     const card = document.createElement("div");
                     card.className = "message-card";
-                    const sender = document.createElement("div");
-                    sender.textContent = `📢 ${msg.senderName || "不明"}`;
 
                     const body = document.createElement("div");
                     body.textContent = msg.text;
                     body.style.textAlign = "center";
 
                     card.innerHTML = "";
-                    card.appendChild(sender);
                     card.appendChild(body);
 
                     list.appendChild(card);
@@ -4731,9 +4731,6 @@
             await addDoc(collection(db, "messages"), {
                 userID: targetUserID || null,
                 text,
-
-                senderName: userName,
-
                 expireAt: Date.now() + (seconds * 1000),
                 createdAt: Date.now()
             });
