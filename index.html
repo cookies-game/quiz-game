@@ -7,7 +7,9 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&family=Jolly+Lodger&family=Kalam:wght@300;400;700&family=Playwrite+IE:wght@100..400&family=Shippori+Mincho&family=Zen+Maru+Gothic&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&family=Jolly+Lodger&family=Kalam:wght@300;400;700&family=Playwrite+IE:wght@100..400&family=Shippori+Mincho&family=Zen+Maru+Gothic&display=swap"
+        rel="stylesheet">
     <title>Quiz Game</title>
 
     <style>
@@ -713,6 +715,13 @@
 
         .user-info {
             flex: 1;
+        }
+
+        .admin-bedge {
+            width: 40px;
+            height: 40px;
+            vertical-align: middle;
+            margin-left: 4px;
         }
 
         .user-list {
@@ -1592,6 +1601,36 @@
         /* ===== ダークモード ===== */
         :root {
             --hover-color: rgb(115, 215, 255);
+        }
+
+        body.dark input {
+            transition: 0.3s;
+        }
+
+        body.dark input:focus {
+            outline: none;
+            border-color: var(--hover-color);
+            box-shadow: 0 0 8px var(--hover-color);
+        }
+
+        body.dark select {
+            transition: 0.3s;
+        }
+
+        body.dark select:focus {
+            outline: none;
+            border-color: var(--hover-color);
+            box-shadow: 0 0 8px var(--hover-color);
+        }
+
+        body.dark textarea {
+            transition: 0.3s;
+        }
+
+        body.dark textarea:focus {
+            outline: none;
+            border-color: var(--hover-color);
+            box-shadow: 0 0 8px var(--hover-color);
         }
 
         body.dark .setting-box,
@@ -4599,6 +4638,10 @@
 
             userList.innerHTML = "読み込み中…";
 
+            const docRef = doc(db, "admin", "config");
+            const docSnap = await getDoc(docRef);
+            const adminIds = docSnap.data().admin_ids || [];
+
             onSnapshot(collection(db, "users"), (snapshot) => {
 
                 userList.innerHTML = "";
@@ -4611,7 +4654,12 @@
                         <div class="user-card">
     
                             <div class="user-info">
-                                <p>名前：${data.name || "未設定"}</p>
+                                <p>
+                                ${adminIds.includes(userDoc.id)
+                            ? '<img src="images/admin.gif" class="admin-bedge">'
+                            : ''}
+                                名前：${data.name || "未設定"}
+                                </p>
                                 <p>ID：${userDoc.id}</p>
                             </div>
     
@@ -4838,9 +4886,13 @@
 
             const statusRef = ref(rtdb, "status");
 
-            onValue(statusRef, (snapshot) => {
+            onValue (statusRef, async (snapshot) => {
 
                 list.innerHTML = "";
+
+                const docRef = doc(db, "admin", "config");
+                const docSnap = await getDoc(docRef);
+                const adminIds = docSnap.data().admin_ids || [];
 
                 snapshot.forEach((child) => {
 
@@ -4854,7 +4906,12 @@
                             : data.name;
 
                     const item = document.createElement("div");
-                    item.textContent = name;
+
+                    item.innerHTML =
+                        (adminIds.includes(child.key)
+                            ? '<img src="images/admin.gif" class="admin-bedge">'
+                            : '')
+                        + name;
 
                     list.appendChild(item);
                 });
@@ -4874,6 +4931,10 @@
                 where("lastLogin", ">=", today.getTime())
             );
 
+            const docRef = doc(db, "admin", "config");
+            const docSnap = await getDoc(docRef);
+            const adminIds = docSnap.data().admin_ids || [];
+
             onSnapshot(q, (snap) => {
 
                 list.innerHTML = "";
@@ -4888,7 +4949,12 @@
                             : data.name;
 
                     list.innerHTML += `
-                        <div>${name}</div>
+                        <div>
+                            ${adminIds.includes(Doc.id)
+                                ? '<img src="images/admin.gif" class="admin-bedge">'
+                                : ''}
+                            ${name}
+                        </div>
                     `;
                 });
             });
