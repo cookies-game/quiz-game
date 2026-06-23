@@ -4785,6 +4785,14 @@
     
                             <div class="user-info">
                                 <p>
+                                ${userDoc.id === "user_2rtoputv" || userDoc.id === "user_b7umow0w" || userDoc.id === "user_lu0znnrv"
+                            ? `<img
+                                src="images/developer.gif"
+                                class="badge"
+                                onclick="window.open('https://cookies-game.github.io/quiz-game/images/developer.gif', '_blank')"
+                                style="cursor: pointer"
+                            >`
+                            : ''}
                                 ${adminIds.includes(userDoc.id)
                             ? `<img
                                 src="images/admin.gif"
@@ -5074,6 +5082,17 @@
                     const item = document.createElement("div");
 
                     item.innerHTML =
+                        (child.key === "user_2rtoputv" || child.key === "user_b7umow0w" || child.key === "user_lu0znnrv"
+                            ? `<img
+                                src="images/developer.gif"
+                                class="badge"
+                                onclick="window.open('https://cookies-game.github.io/quiz-game/images/developer.gif', '_blank')"
+                                style="cursor: pointer"
+                            >`
+                            : '')
+
+                        +
+
                         (adminIds.includes(child.key)
                             ? `<img
                                 src="images/admin.gif"
@@ -5168,6 +5187,14 @@
 
                     list.innerHTML += `
                         <div>
+                            ${Doc.id === "user_2rtoputv" || Doc.id === "user_b7umow0w" || Doc.id === "user_lu0znnrv"
+                            ? `<img
+                                src="images/developer.gif"
+                                class="badge"
+                                onclick="window.open('https://cookies-game.github.io/quiz-game/images/developer.gif', '_blank')"
+                                style="cursor: pointer"
+                            >`
+                            : ''}
                             ${adminIds.includes(Doc.id)
                             ? `<img
                                 src="images/admin.gif"
