@@ -2589,7 +2589,7 @@
                     card.className = "message-card";
 
                     const body = document.createElement("div");
-                    body.textContent = msg.text;
+                    body.innerHTML = linkify(msg.text);
                     body.style.textAlign = "center";
 
                     card.innerHTML = "";
@@ -2608,7 +2608,6 @@
             updateLevelUI();
 
             updatecurrencyUI();
-
 
             const savedTheme = localStorage.getItem("theme");
 
@@ -2631,6 +2630,13 @@
                 loadingscreen.style.display = "none";
             }, 500);
         };
+
+        function linkify(text) {
+            return text.replace(
+                /(https?:\/\/[^\s]+)/g,
+                '<a href="$1" target="_blank">$1</a>'
+            );
+        }
 
         async function cleanupMessages() {
 
