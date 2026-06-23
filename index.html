@@ -2552,6 +2552,7 @@
                 name: userName,
                 online: true,
                 lastChanged: Date.now(),
+                ownedSkills: ownedSkills,
                 equippedTitle: equippedTitle
             });
 
@@ -4100,6 +4101,16 @@
                 id: "firstStep",
                 name: "はじめの一歩",
                 description: "初めてクイズに正解した"
+            },
+            {
+                id: "collector",
+                name: "コレクター",
+                description: "すべてのガチャスキルを獲得した"
+            },
+            {
+                id: "million",
+                name: "大富豪",
+                description: "所持金が100万円を突破した"
             }
         ];
 
@@ -4538,6 +4549,13 @@
 
                             addCurrency("coin", getcoin);
 
+                            if (coin >= 1000000 && !ownedTitles.includes("million")) {
+
+                                ownedTitles.push("million");
+
+                                alert("🏆 称号「大富豪」を獲得！");
+                            }
+
                             addCurrency("gem", getgem);
 
                             addCurrency("point", getpoint);
@@ -4593,6 +4611,13 @@
                     }
 
                     addCurrency("coin", getcoin);
+
+                    if (coin >= 1000000 && !ownedTitles.includes("million")) {
+
+                        ownedTitles.push("million");
+
+                        alert("🏆 称号「大富豪」を獲得！");
+                    }
 
                     addCurrency("gem", getgem);
 
@@ -4763,11 +4788,35 @@
                             >`
                             : ''}
                                 名前：${data.name || "未設定"}
+                                ${data.ownedSkills?.includes("admin") || data.ownedSkills?.includes("c00lkidd")
+                            ? `<img
+                                src="images/OG.gif"
+                                class="badge"
+                                onclick="window.open('https://cookies-game.github.io/quiz-game/images/OG.gif', '_blank')"
+                                style="cursor: pointer;"
+                            >`
+                            : ''}
                                 ${data.equippedTitle === "firstStep"
                             ? `<img
                                 src="images/first.gif"
                                 class="badge"
                                 onclick="window.open('https://cookies-game.github.io/quiz-game/images/first.gif', '_blank')"
+                                style="cursor: pointer"
+                            >`
+                            : ''}
+                                ${data.equippedTitle === "collector"
+                            ? `<img
+                                src="images/collector.gif"
+                                class="badge"
+                                onclick="window.open('https://cookies-game.github.io/quiz-game/images/collector.gif', '_blank')"
+                                style="cursor: pointer"
+                            >`
+                            : ''}
+                                ${data.equippedTitle === "million"
+                            ? `<img
+                                src="images/million.gif"
+                                class="badge"
+                                onclick="window.open('https://cookies-game.github.io/quiz-game/images/million.gif')"
                                 style="cursor: pointer"
                             >`
                             : ''}
@@ -4883,7 +4932,6 @@
             const targetUserID = document.querySelector(".message-user-id").value.trim();
             let seconds = Number(document.querySelector(".message-seconds").value);
             if (seconds < 2) seconds = 2;
-            console.log(seconds);
             const text = document.querySelector(".message-text").value.trim();
 
             if (!text) return;
@@ -5019,8 +5067,6 @@
 
                     const item = document.createElement("div");
 
-                    console.log(data);
-
                     item.innerHTML =
                         (adminIds.includes(child.key)
                             ? `<img
@@ -5037,12 +5083,45 @@
 
                         +
 
+                        (data.ownedSkills?.includes("admin") || data.ownedSkills?.includes("c00lkidd")
+                            ? `<img
+                                src="images/OG.gif"
+                                class="badge"
+                                onclick="window.open('https://cookies-game.github.io/quiz-game/images/OG.gif', '_blank')"
+                                style="cursor: pointer;"
+                            >`
+                            : '')
+
+                        +
+
                         (data.equippedTitle === "firstStep"
                             ? `<img
                                 src="images/first.gif"
                                 class="badge"
                                 onclick="window.open('https://cookies-game.github.io/quiz-game/images/first.gif', '_blank')"
                                 style="cursor: pointer;"
+                            >`
+                            : '')
+
+                        +
+
+                        (data.equippedTitle === "collector"
+                            ? `<img
+                                src="images/collector.gif"
+                                class="badge"
+                                onclick="window.open('https://cookies-game.github.io/quiz-game/images/collector.gif', '_blank')"
+                                style="cursor: pointer"
+                            >`
+                            : '')
+
+                        +
+
+                        (data.equippedTitle === "million"
+                            ? `<img
+                                src="images/million.gif"
+                                class="badge"
+                                onclick="window.open('https://cookies-game.github.io/quiz-game/images/million.gif')"
+                                style="cursor: pointer"
                             >`
                             : '')
 
@@ -5092,12 +5171,36 @@
                             >`
                             : ''}
                             ${name}
+                            ${data.ownedSkills?.includes("admin") || data.ownedSkills?.includes("c00lkidd")
+                            ? `<img
+                                src="images/OG.gif"
+                                class="badge"
+                                onclick="window.open('https://cookies-game.github.io/quiz-game/images/OG.gif', '_blank')"
+                                style="cursor: pointer;"
+                            >`
+                            : ''}
                             ${data.equippedTitle === "firstStep"
                             ? `<img
                                 src="images/first.gif"
                                 class="badge"
                                 onclick="window.open('https://cookies-game.github.io/quiz-game/images/first.gif', '_blank')"
                                 style="cursor: pointer;"
+                            >`
+                            : ''}
+                            ${data.equippedTitle === "collector"
+                            ? `<img
+                                src="images/collector.gif"
+                                class="badge"
+                                onclick="window.open('https://cookies-game.github.io/quiz-game/images/collector.gif', '_blank')"
+                                style="cursor: pointer"
+                            >`
+                            : ''}
+                            ${data.equippedTitle === "million"
+                            ? `<img
+                                src="images/million.gif"
+                                class="badge"
+                                onclick="window.open('https://cookies-game.github.io/quiz-game/images/million.gif')"
+                                style="cursor: pointer"
                             >`
                             : ''}
                         </div>
@@ -5487,7 +5590,17 @@
                 if (!reward) return;
 
                 if (!ownedSkills.includes(reward.id)) {
+
                     ownedSkills.push(reward.id);
+
+                    const hasAllGachaSkills = skillGachaItems.every(skill => ownedSkills.includes(skill.id));
+
+                    if (hasAllGachaSkills && !ownedTitles.includes("collector")) {
+
+                        ownedTitles.push("collector");
+
+                        alert("🏆 称号「コレクター」を獲得！");
+                    }
                 }
 
                 await saveProgress();
