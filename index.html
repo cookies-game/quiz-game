@@ -4919,8 +4919,10 @@
         window.closeAdminPanel = function () {
             document.querySelector(".adminPanel").style.display = "none";
             document.querySelector(".users").style.display = "none";
+            document.querySelector(".feedbacks").style.display = "none";
 
             document.querySelector(".show-users-btn").textContent = "ユーザー一覧";
+            document.querySelector(".feedback-btn").textContent = "フィードバック一覧";
         }
 
         window.showUsers = async function () {
@@ -5166,16 +5168,44 @@
 
                     const data = docSnap.data();
 
+                    const date = new Date(data.createdAt);
+
+                    const time =
+                        `${date.getMonth() + 1}月` +
+                        `${date.getDate()}日` +
+                        `${date.getHours()}時` +
+                        `${date.getMinutes()}分` +
+                        `${date.getSeconds()}秒`;
+
                     list.innerHTML += `
                         <div class="feedback-card">
+                            
                             <b>${data.name}</b>
-                            <br>
-                            ${data.text}
+
+                            <b class="feedback-time">
+                                ${time}
+                            </b>
+
+                            <div>
+                                ${data.text}
+                            </div>
+
+                            <button class="delete-feedback-btn" onclick="deleteFeedback('${docSnap.id}')">
+                                削除
+                            </button>
+
                         </div>
                     `;
                 });
             });
         };
+
+        window.deleteFeedback = async function (id) {
+
+            if (!confirm("削除しますか？")) return;
+
+            await deleteDoc(doc(db, "feedback", id));
+        }
 
         const adminSaveBtn = document.querySelector(".admin-save-btn");
 
