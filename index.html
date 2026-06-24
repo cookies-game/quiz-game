@@ -829,6 +829,26 @@
             width: 100%;
         }
 
+        .delete-feedback-btn {
+            background: white;
+            cursor: pointer;
+            border: 1px solid black;
+            border-radius: 10px;
+            width: 160px;
+            font-size: 15px;
+            transition: 0.3s;
+        }
+
+        .delete-feedback-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgb(45, 45, 45);
+        }
+
+        .delete-feedback-btn:active {
+            transform: scale(1);
+            box-shadow: none;
+        }
+
         .admin-close {
             position: absolute;
             top: 0;
@@ -1863,6 +1883,7 @@
         body.dark .titles-box,
         body.dark .feedback-box,
         body.dark .delete-user-id,
+        body.dark .delete-feedback-btn,
         body.dark .message-user-id,
         body.dark .message-seconds,
         body.dark .message-text,
@@ -1916,6 +1937,7 @@
         body.dark .home-btn4:hover,
         body.dark .send-btn:hover,
         body.dark .feedback-btn:hover,
+        body.dark .delete-feedback-btn:hover,
         body.dark .draw-btn:hover,
         body.dark .home-btn5:hover,
         body.dark .admin-btn:hover,
@@ -2010,6 +2032,12 @@
         body.dark .feedback-card {
             background: rgb(45, 45, 45);
             border: 2px solid black;
+        }
+
+        body.dark .delete-feedback-btn {
+            background: rgb(45, 45, 45);
+            border: 2px solid black;
+            color: white;
         }
 
     </style>
