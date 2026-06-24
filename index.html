@@ -1322,6 +1322,84 @@
             background: rgb(255, 50, 50);
         }
 
+        .update-schedule-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9998;
+        }
+
+        .update-schedule-box {
+            width: 500px;
+            height: 550px;
+            background: white;
+            border: 2px solid black;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 20px;
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+            position: relative;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .update-schedule-title {
+            align-self: center;
+            font-size: 30px;
+        }
+
+        .update-schedule-title2 {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 25px;
+            white-space: nowrap;
+        }
+
+        .update-date {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 40px;
+            font-weight: bold;
+        }
+
+        .update-detail {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 18px;
+        }
+
+        .close-update-schedule {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 60px;
+            height: 60px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 35px;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-update-schedule:hover {
+            color: white;
+            background: rgb(255, 50, 50);
+        }
+
         #subj-select-screen {
             position: absolute;
             top: 50%;
@@ -2110,6 +2188,18 @@
 
             </div>
 
+            <div class="tooltip-wrapper">
+
+                <button class="header-btn" onclick="openUpdateSchedule()">
+                    📢
+                </button>
+
+                <div class="tooltip">
+                    アップデート予定日
+                </div>
+
+            </div>
+
             <div class="currencies">
 
                 <p class="currency coin">
@@ -2198,10 +2288,16 @@
 
         <div class="feedback-box">
 
-            <h2 class="feedback-title">フィードバック📋</h2>
+            <h2 class="feedback-title">
+                フィードバック📋
+            </h2>
 
-            <p>アップデートで追加してほしいものや、バグ、あとは単純に楽しいかなどを教えてください！</p>
-            <p style="color: rgb(255, 50, 50);">※荒らしなどをした場合は最悪1時間の利用停止処分になります</p>
+            <p>
+                アップデートで追加してほしいものや、バグ、あとは単純に楽しいかなどを教えてください！
+            </p>
+            <p style="color: rgb(255, 50, 50);">
+                ※荒らしなどをした場合は最悪1時間の利用停止処分になります
+            </p>
 
             <textarea class="feedback-text" rows="3" placeholder="例：「アップデートでクイズの問題を増やしてほしいです！」"></textarea>
 
@@ -2210,6 +2306,30 @@
             </button>
 
             <button class="close-feedback-btn" onclick="closeFeedback()">
+                ✘
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="update-schedule-overlay" style="display: none;">
+
+        <div class="update-schedule-box">
+
+            <h2 class="update-schedule-title">
+                アップデート予定日📢
+            </h2>
+
+            <h3 class="update-schedule-title2">次回のアップデート予定日</h3>
+
+            <div class="update-date" onclick="editUpdateDate()">
+                --/-- --:--
+            </div>
+
+            <p class="update-detail">詳しくは<a href="https://cookies-game.github.io/update-content" target="_blank">こちら</a></p>
+
+            <button class="close-update-schedule" onclick="closeUpdateSchedule()">
                 ✘
             </button>
 
@@ -4612,9 +4732,9 @@
                             saveProgress();
                         }
 
-                        let expAmount = 10;
-                        let coinAmount = 10;
-                        let pointAmount = 1;
+                        let expAmount = 100;
+                        let coinAmount = 100;
+                        let pointAmount = 10;
 
                         // expブースト
                         if (equippedSkill === "expboost1") {
@@ -5603,6 +5723,61 @@
 
             alert("送信しました！ご意見ありがとうございます！");
         };
+
+        window.openUpdateSchedule = function () {
+            document.querySelector(".update-schedule-overlay").style.display = "flex";
+        }
+
+        window.closeUpdateSchedule = function () {
+            document.querySelector(".update-schedule-overlay").style.display = "none";
+        }
+
+        window.editUpdateDate = async function () {
+
+            if (userID !== "user_2rtoputv" && userID !== "user_b7umow0w" && userID !== "user_lu0znnrv") return;
+
+            let value = prompt(
+                "予定日を入力"
+            );
+
+            if (value === null) return;
+
+            value = value.trim();
+
+            if (value === "未定") {
+                value = "--/-- --:--";
+            } else {
+
+                const match = value.match(
+                    /^(\d+)月(\d+)日(\d+)時(\d+)分$/
+                );
+
+                if (!match) {
+                    alert("形式が違います");
+                    return;
+                }
+
+                const month = match[1].padStart(2, "0");
+                const day = match[2].padStart(2, "0");
+                const hour = match[3].padStart(2, "0");
+                const minute = match[4].padStart(2, "0");
+
+                value = `${month}/${day} ${hour}:${minute}`;
+            }
+
+            await updateDoc(doc(db, "admin", "config"), {
+                updateDate: value
+            });
+
+            alert(`予定日を${value}に設定しました`);
+        };
+
+        onSnapshot(doc(db, "admin", "config"), (snap) => {
+
+            const data = snap.data();
+
+            document.querySelector(".update-date").textContent = data.updateDate || "--/-- --:--";
+        });
 
         // ユーザー名保存処理
         savebtn.onclick = async function () {
